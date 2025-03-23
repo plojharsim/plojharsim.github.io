@@ -278,6 +278,77 @@ body {
     padding-left: 0.5rem;
 }
 
+/* Sekce Podrobnosti projektu */
+.project-detail {
+    padding: 6rem 2rem;
+    text-align: center;
+    background: #0a0f0a;
+}
+
+.project-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.project-detail h1 {
+    font-size: 2.8rem;
+    color: #00ff7f;
+    margin-bottom: 1rem;
+}
+
+.project-content {
+    background: rgba(31, 42, 31, 0.4);
+    padding: 2rem;
+    border-radius: 15px;
+    border: 1px solid rgba(0, 255, 127, 0.2);
+    backdrop-filter: blur(10px);
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+.project-content h2 {
+    font-size: 1.8rem;
+    color: #00ff7f;
+    margin-bottom: 1rem;
+}
+
+.project-content p {
+    font-size: 1rem;
+    color: #d0e0d0;
+    margin-bottom: 1.5rem;
+}
+
+.project-content ul {
+    list-style: none;
+    margin-bottom: 1.5rem;
+}
+
+.project-content ul li {
+    font-size: 1rem;
+    color: #d0e0d0;
+    margin-bottom: 0.5rem;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.project-content ul li::before {
+    content: '•';
+    color: #00ff7f;
+    position: absolute;
+    left: 0;
+}
+
+.project-content a {
+    color: #00ff7f;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.project-content a:hover {
+    color: #ffffff;
+}
+
 /* Sekce Kontakt */
 .contact {
     padding: 6rem 2rem;
@@ -450,7 +521,7 @@ footer {
     50% { transform: translateY(-10px); }
 }
 
-/* Responzivita pro mobily */
+/* Responzivita pro mobily (sloučená) */
 @media (max-width: 768px) {
     /* Navigace */
     .navbar {
@@ -483,7 +554,7 @@ footer {
 
     /* Hero sekce */
     .animate-text {
-        font-size: 4rem; /* Zvětšené z 3rem na 4rem */
+        font-size: 4rem;
     }
 
     .subtitle {
@@ -537,6 +608,49 @@ footer {
 
     .projects-grid {
         grid-template-columns: 1fr;
+    }
+
+    /* Sekce Podrobnosti projektu */
+    .project-detail {
+        padding: 3rem 1rem;
+    }
+
+    .project-container {
+        padding: 0 0.5rem;
+    }
+
+    .project-detail h1 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .project-content {
+        padding: 1.5rem;
+    }
+
+    .project-content h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .project-content p {
+        font-size: 0.9rem;
+    }
+
+    .project-content ul li {
+        font-size: 0.9rem;
+        padding-left: 1.2rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .project-content a {
+        font-size: 0.9rem;
+    }
+
+    .project-container .cta-button {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        margin-top: 1rem;
     }
 
     /* Sekce Kontakt */

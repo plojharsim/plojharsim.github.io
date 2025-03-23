@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procvičovák - plojharsim</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="main-title">Procvičovák</h1>
+        <div class="glass-card">
+            <select id="languageSelect" class="language-select">
+                <option value="cs-en">Čeština a Angličtina</option>
+                <option value="cs-de">Čeština a Němčina</option>
+            </select>
+            <div id="question" class="question-text"></div>
+            <input type="text" id="answerInput" class="answer-input" placeholder="Zadej odpověď" autofocus>
+            <button id="submitBtn" class="submit-btn">Odeslat</button>
+            <div id="result" class="result-text"></div>
+            <div id="stats" class="stats-text">
+                <p>Správně: <span id="correctCount">0</span></p>
+                <p>Chyby: <span id="errorCount">0</span></p>
+                <p>Úspěšnost: <span id="successRate">0%</span></p>
+            </div>
+        </div>
+    </div>
+    <script src="vocab.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
