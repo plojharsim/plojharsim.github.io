@@ -16,11 +16,13 @@ body {
 
 .container {
     text-align: center;
-    padding: 20px;
+    padding: 15px; /* Menší padding na mobilech */
+    width: 100%;
+    max-width: 600px; /* Omezení šířky pro větší displeje */
 }
 
 .main-title {
-    font-size: 5rem;
+    font-size: 5rem; /* Výchozí pro desktop */
     font-weight: 900;
     background: linear-gradient(90deg, #00ff7f, #00cc66);
     -webkit-background-clip: text;
@@ -38,22 +40,21 @@ body {
     backdrop-filter: blur(10px);
     border: 1px solid rgba(0, 255, 127, 0.2);
     border-radius: 15px;
-    padding: 30px;
-    margin-top: 20px;
-    max-width: 500px;
+    padding: 20px; /* Menší padding na mobilech */
+    margin-top: 15px;
     width: 100%;
     box-shadow: 0 0 30px rgba(0, 255, 127, 0.1);
 }
 
 .language-select {
     width: 100%;
-    padding: 10px;
+    padding: 12px; /* Větší padding pro dotyk */
     background: rgba(20, 28, 20, 0.3);
     border: 1px solid #00ff7f;
     color: #d0e0d0;
     font-size: 1.3rem;
     border-radius: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     appearance: none;
     background-image: linear-gradient(45deg, transparent 50%, #00ff7f 50%), 
                       linear-gradient(135deg, #00ff7f 50%, transparent 50%);
@@ -74,14 +75,15 @@ body {
 }
 
 .question-text {
-    font-size: 2rem;
+    font-size: 2rem; /* Výchozí pro desktop */
     font-weight: 600;
-    margin: 20px 0;
+    margin: 15px 0;
+    word-wrap: break-word; /* Aby dlouhá slova nepřetékala */
 }
 
 .answer-input {
     width: 100%;
-    padding: 15px;
+    padding: 15px; /* Větší padding pro dotyk */
     background: rgba(20, 28, 20, 0.3);
     border: 1px solid #00ff7f;
     border-radius: 8px;
@@ -96,8 +98,8 @@ body {
 }
 
 .submit-btn {
-    margin-top: 20px;
-    padding: 10px 20px;
+    margin-top: 15px;
+    padding: 12px 25px; /* Větší plocha pro dotyk */
     background: linear-gradient(90deg, #00ff7f, #00cc66);
     border: none;
     border-radius: 8px;
@@ -113,13 +115,13 @@ body {
 }
 
 .result-text {
-    margin-top: 20px;
-    font-size: 1.4rem;
+    margin-top: 15px;
+    font-size: 1.4rem; /* Výchozí pro desktop */
 }
 
 .stats-text {
-    margin-top: 20px;
-    font-size: 1.2rem;
+    margin-top: 15px;
+    font-size: 1.2rem; /* Výchozí pro desktop */
     color: #d0e0d0;
 }
 
@@ -134,9 +136,65 @@ body {
 
 /* Responzivní design */
 @media (max-width: 768px) {
-    .main-title { font-size: 4rem; }
-    .question-text { font-size: 1.5rem; }
-    .answer-input, .submit-btn, .language-select { font-size: 1rem; }
-    .result-text { font-size: 1.2rem; }
-    .stats-text { font-size: 1rem; }
+    .main-title { 
+        font-size: 3.5rem; /* Menší nadpis na tabletech a mobilech */
+    }
+    .glass-card { 
+        padding: 15px; /* Menší padding */
+    }
+    .question-text { 
+        font-size: 1.5rem; /* Menší otázka */
+    }
+    .answer-input { 
+        font-size: 1.1rem; /* Menší text v inputu */
+        padding: 12px; 
+    }
+    .submit-btn { 
+        font-size: 1.1rem; 
+        padding: 10px 20px; 
+    }
+    .result-text { 
+        font-size: 1.2rem; /* Menší výsledek */
+    }
+    .stats-text { 
+        font-size: 1rem; /* Menší statistiky */
+    }
+    .language-select { 
+        font-size: 1.1rem; 
+        padding: 10px; 
+    }
+}
+
+@media (max-width: 480px) {
+    .main-title { 
+        font-size: 2.5rem; /* Ještě menší nadpis na malých mobilech */
+    }
+    .glass-card { 
+        padding: 10px; 
+        margin-top: 10px; 
+    }
+    .question-text { 
+        font-size: 1.3rem; 
+    }
+    .answer-input { 
+        font-size: 1rem; 
+        padding: 10px; 
+    }
+    .submit-btn { 
+        font-size: 1rem; 
+        padding: 8px 15px; 
+    }
+    .result-text { 
+        font-size: 1rem; 
+    }
+    .stats-text { 
+        font-size: 0.9rem; 
+    }
+    .language-select { 
+        font-size: 1rem; 
+        padding: 8px; 
+    }
+    .container { 
+        padding: 10px; 
+    }
 }
