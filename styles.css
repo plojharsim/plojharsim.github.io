@@ -278,6 +278,28 @@ body {
     padding-left: 0.5rem;
 }
 
+/* Neaktivní odkaz */
+.project-link-disabled {
+    display: inline-block;
+    color: #666; /* Šedá barva, stejná jako u status-planned */
+    text-decoration: none;
+    font-weight: 600;
+    cursor: default; /* Bez kurzoru ruky */
+}
+
+/* Zajistím, že hover efekt z .project-link se neaplikuje */
+.project-link-disabled:hover {
+    color: #666; /* Zůstane šedý, žádná změna barvy */
+    padding-left: 0; /* Žádný posun */
+}
+
+/* Responzivita pro mobily */
+@media (max-width: 768px) {
+    .project-link-disabled {
+        font-size: 0.9rem; /* Stejná velikost jako u aktivních odkazů na mobilech */
+    }
+}
+
 /* Sekce Podrobnosti projektu */
 .project-detail {
     padding: 6rem 2rem;
@@ -498,6 +520,47 @@ footer {
 
 .footer-links a:hover::after {
     width: 100%;
+}
+
+/* Styly pro stav projektu */
+.project-status {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+.status-completed {
+    background: rgba(0, 255, 127, 0.2);
+    color: #00ff7f;
+    border: 1px solid #00ff7f;
+}
+
+.status-in-progress {
+    background: rgba(255, 170, 0, 0.2);
+    color: #ffaa00;
+    border: 1px solid #ffaa00;
+}
+
+.status-planned {
+    background: rgba(102, 102, 102, 0.2);
+    color: #666;
+    border: 1px solid #666;
+}
+
+/* Responzivita pro mobily */
+@media (max-width: 768px) {
+    .project-status {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+    }
+
+    .project-card h3 {
+        font-size: 1.5rem; /* Zmenšení nadpisu, aby se vešel se stavem */
+    }
 }
 
 /* Animace */
