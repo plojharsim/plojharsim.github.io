@@ -167,8 +167,28 @@ const vocabDatabases = {
         { cs: "jet na kole", en: "ride a bicycle" }
     ],
     "cs-de": [
-        { cs: "Dům", de: "Haus" },
-        { cs: "Kočka", de: "Katze" },
-        { cs: "Auto", de: "Auto" }
+        { cs: "Sešity", de: "Hefte" },
+        { cs: "Pera", de: "Kugelschreiber" },
+        { cs: "Pravítka", de: "Lineale" },
+        { cs: "Krabičky na make-up", de: "Make-up-Boxen" },
+        { cs: "Vodovky", de: "Malkästen" },
+        { cs: "Nůžky", de: "Scheren" },
+        { cs: "Boty", de: "Schuhe" },
+        { cs: "Zvýrazňovače", de: "Textmarker" },
+        { cs: "Slovníky", de: "Wörterbücher" },
+        { cs: "Banány", de: "Bananen" },
+        { cs: "Tužky", de: "Bleistifte" },
+        { cs: "Poznámkové bloky", de: "Blöcke" },
+        { cs: "Vidličky", de: "Gabeln" },
+        { cs: "Rtěnky", de: "Lippenstifte" },
+        { cs: "Zvýrazňovače", de: "Marker" },
+        { cs: "Sportovní boty", de: "Turnschuhe" },
+        { cs: "Pera", de: "Kulis" },
+        { cs: "Penály", de: "Mäppchen" },
+        { cs: "Čepice", de: "Mützen" },
+        { cs: "Svetry", de: "Pullover" },
+        { cs: "Gumy", de: "Radiergummis" },
+        { cs: "Tablety", de: "Tablets" },
+        { cs: "Kalkulačky", de: "Taschenrechner" }
     ]
 };
