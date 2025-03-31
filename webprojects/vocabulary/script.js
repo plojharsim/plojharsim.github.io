@@ -33,7 +33,7 @@ function nextWord() {
     currentWord = currentVocab[Math.floor(Math.random() * currentVocab.length)];
     direction = Math.random() > 0.5 ? "toTarget" : "toSource";
     
-    direction = "toSource";
+    direction = "toTarget";
 
     if (direction === "toTarget") {
         questionEl.textContent = currentWord.cs;
