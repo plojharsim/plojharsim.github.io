@@ -281,22 +281,21 @@ body {
 /* Neaktivní odkaz */
 .project-link-disabled {
     display: inline-block;
-    color: #666; /* Šedá barva, stejná jako u status-planned */
+    color: #666;
     text-decoration: none;
     font-weight: 600;
-    cursor: default; /* Bez kurzoru ruky */
+    cursor: default;
 }
 
-/* Zajistím, že hover efekt z .project-link se neaplikuje */
 .project-link-disabled:hover {
-    color: #666; /* Zůstane šedý, žádná změna barvy */
-    padding-left: 0; /* Žádný posun */
+    color: #666;
+    padding-left: 0;
 }
 
 /* Responzivita pro mobily */
 @media (max-width: 768px) {
     .project-link-disabled {
-        font-size: 0.9rem; /* Stejná velikost jako u aktivních odkazů na mobilech */
+        font-size: 0.9rem;
     }
 }
 
@@ -538,8 +537,8 @@ footer {
     display: inline-block;
     font-size: 0.8rem;
     font-weight: 400;
-    color: #d0e0d0; /* Světle šedá, aby ladila s textem */
-    opacity: 0.7; /* Lehce průsvitná */
+    color: #d0e0d0;
+    opacity: 0.7;
     margin-left: 0.5rem;
     vertical-align: middle;
 }
@@ -547,7 +546,7 @@ footer {
 /* Responzivita pro mobily */
 @media (max-width: 768px) {
     .project-note {
-        font-size: 0.7rem; /* Zmenšení na mobilech */
+        font-size: 0.7rem;
     }
 }
 
@@ -577,7 +576,7 @@ footer {
     }
 
     .project-card h3 {
-        font-size: 1.5rem; /* Zmenšení nadpisu, aby se vešel se stavem */
+        font-size: 1.5rem;
     }
 }
 

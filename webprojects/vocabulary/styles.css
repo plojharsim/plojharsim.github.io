@@ -1,54 +1,58 @@
+/* Reset a základní styly */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
 }
 
 body {
     background-color: #0a0f0a;
-    font-family: 'Inter', sans-serif;
     color: #d0e0d0;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    line-height: 1.8;
+    overflow-x: hidden;
 }
 
+/* Container */
 .container {
     text-align: center;
-    padding: 15px; /* Menší padding na mobilech */
+    padding: 15px;
     width: 100%;
-    max-width: 600px; /* Omezení šířky pro větší displeje */
+    max-width: 600px;
 }
 
+/* Hlavní nadpis */
 .main-title {
-    font-size: 5rem; /* Výchozí pro desktop */
+    font-size: 5rem;
     font-weight: 900;
     background: linear-gradient(90deg, #00ff7f, #00cc66);
     -webkit-background-clip: text;
     color: transparent;
     animation: textGlow 2s ease-in-out infinite;
+    margin-bottom: 1rem;
 }
 
-@keyframes textGlow {
-    0%, 100% { text-shadow: 0 0 10px rgba(0, 255, 127, 0.7); }
-    50% { text-shadow: 0 0 30px rgba(0, 255, 127, 0.7); }
-}
-
+/* Glass card */
 .glass-card {
     background: rgba(31, 42, 31, 0.4);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(0, 255, 127, 0.2);
     border-radius: 15px;
-    padding: 20px; /* Menší padding na mobilech */
+    padding: 20px;
     margin-top: 15px;
     width: 100%;
     box-shadow: 0 0 30px rgba(0, 255, 127, 0.1);
+    animation: float 4s ease-in-out infinite;
 }
 
+/* Select jazyků */
 .language-select {
     width: 100%;
-    padding: 12px; /* Větší padding pro dotyk */
+    padding: 12px;
     background: rgba(20, 28, 20, 0.3);
     border: 1px solid #00ff7f;
     color: #d0e0d0;
@@ -74,29 +78,35 @@ body {
     color: #d0e0d0;
 }
 
+/* Text otázky */
 .question-text {
-    font-size: 2rem; /* Výchozí pro desktop */
+    font-size: 2rem;
     font-weight: 600;
+    color: #00ff7f;
     margin: 15px 0;
-    word-wrap: break-word; /* Aby dlouhá slova nepřetékala */
+    word-wrap: break-word;
+    text-align: center;
 }
 
+/* Vstupní pole pro odpověď */
 .answer-input {
     width: 100%;
-    padding: 15px; /* Větší padding pro dotyk */
+    padding: 15px;
     background: rgba(20, 28, 20, 0.3);
     border: 1px solid #00ff7f;
     border-radius: 8px;
     color: #d0e0d0;
     font-size: 1.3rem;
+    margin-bottom: 15px;
     outline: none;
-    transition: border-color 0.3s;
+    transition: border-color 0.3s ease;
 }
 
 .answer-input:focus {
     border-color: #00cc66;
 }
 
+/* Tlačítko odeslat */
 .submit-btn {
     margin-top: 15px;
     padding: 12px 25px; /* Větší plocha pro dotyk */
@@ -107,22 +117,31 @@ body {
     font-size: 1.3rem;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform 0.2s ease, box-shadow 0.4s ease;
+    margin-bottom: 15px;
+    display: inline-block; /* Tlačítko se přizpůsobí obsahu */
+    max-width: 200px; /* Volitelné: maximální šířka */
 }
 
 .submit-btn:hover {
     transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(0, 255, 127, 0.7);
 }
 
+/* Text výsledku */
 .result-text {
     margin-top: 15px;
-    font-size: 1.4rem; /* Výchozí pro desktop */
+    font-size: 1.4rem;
+    text-align: center;
+    margin-bottom: 15px;
 }
 
+/* Statistiky */
 .stats-text {
     margin-top: 15px;
-    font-size: 1.2rem; /* Výchozí pro desktop */
+    font-size: 1.2rem;
     color: #d0e0d0;
+    text-align: center;
 }
 
 .stats-text p {
@@ -134,67 +153,78 @@ body {
     color: #00ff7f;
 }
 
+/* Animace */
+@keyframes textGlow {
+    0%, 100% { text-shadow: 0 0 10px rgba(0, 255, 127, 0.7); }
+    50% { text-shadow: 0 0 30px rgba(0, 255, 127, 0.7); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
 /* Responzivní design */
 @media (max-width: 768px) {
     .main-title { 
-        font-size: 3.5rem; /* Menší nadpis na tabletech a mobilech */
+        font-size: 3.5rem;
     }
     .glass-card { 
-        padding: 15px; /* Menší padding */
+        padding: 15px;
     }
     .question-text { 
-        font-size: 1.5rem; /* Menší otázka */
+        font-size: 1.5rem;
     }
     .answer-input { 
-        font-size: 1.1rem; /* Menší text v inputu */
-        padding: 12px; 
+        font-size: 1.1rem;
+        padding: 12px;
     }
     .submit-btn { 
-        font-size: 1.1rem; 
-        padding: 10px 20px; 
+        font-size: 1.1rem;
+        padding: 10px 20px;
     }
     .result-text { 
-        font-size: 1.2rem; /* Menší výsledek */
+        font-size: 1.2rem;
     }
     .stats-text { 
-        font-size: 1rem; /* Menší statistiky */
+        font-size: 1rem;
     }
     .language-select { 
-        font-size: 1.1rem; 
-        padding: 10px; 
+        font-size: 1.1rem;
+        padding: 10px;
     }
 }
 
 @media (max-width: 480px) {
     .main-title { 
-        font-size: 2.5rem; /* Ještě menší nadpis na malých mobilech */
+        font-size: 2.5rem;
     }
     .glass-card { 
-        padding: 10px; 
-        margin-top: 10px; 
+        padding: 10px;
+        margin-top: 10px;
     }
     .question-text { 
-        font-size: 1.3rem; 
+        font-size: 1.3rem;
     }
     .answer-input { 
-        font-size: 1rem; 
-        padding: 10px; 
+        font-size: 1rem;
+        padding: 10px;
     }
     .submit-btn { 
-        font-size: 1rem; 
-        padding: 8px 15px; 
+        font-size: 1rem;
+        padding: 8px 15px;
     }
     .result-text { 
-        font-size: 1rem; 
+        font-size: 1rem;
     }
     .stats-text { 
-        font-size: 0.9rem; 
+        font-size: 0.9rem;
     }
     .language-select { 
-        font-size: 1rem; 
-        padding: 8px; 
+        font-size: 1rem;
+        padding: 8px;
     }
     .container { 
-        padding: 10px; 
+        padding: 10px;
     }
 }
