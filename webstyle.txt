@@ -1,0 +1,43 @@
+Styl: moderní, minimalistický a futuristický, s důrazem na glassmorphism – trend, který kombinuje průsvitné prvky s rozmazáním pozadí (backdrop-filter) a jemnými rámečky. Inspirací je technologická estetika, což se odráží v zeleno-černém barevném schématu, které evokuje programátorské prostředí (např. terminály nebo sci-fi rozhraní). Web je navržen tak, aby působil čistě, profesionálně a zároveň vizuálně zajímavě.
+
+----------
+
+Barevné schéma:
+
+Primární barva: #00ff7f (jasná neonově zelená) – používá se pro nadpisy, odkazy, tlačítka a akcenty. Symbolizuje technologii, inovaci a můj osobní styl.
+
+Sekundární barva: #0a0f0a (temně zeleno-černá) – hlavní pozadí webu, vytváří kontrast a hloubku.
+
+Text: #d0e0d0 (světle šedozelená) – hlavní barva textu, jemná a čitelná na tmavém pozadí.
+
+Průsvitné prvky: rgba(31, 42, 31, 0.4) a rgba(20, 28, 20, 0.3) – glassmorphism efekt pro karty a kontejnery, s lehkým zeleným nádechem.
+
+Stíny a přechody: Zelené gradienty (např. linear-gradient(90deg, #00ff7f, #00cc66)) a stíny (0 0 30px rgba(0, 255, 127, 0.7)) pro zvýraznění interaktivních prvků.
+
+----------
+
+Font: Inter (z Google Fonts) – moderní, geometrický sans-serif font, který je čitelný a elegantní.
+
+----------
+
+Váhy: Používají se 400 (běžný text), 600 (odkazy, podnadpisy) a 900 (nadpisy, logo).
+
+----------
+
+Velikosti písma:
+
+Hlavní nadpis: 5rem na desktopu, 4rem na mobilech – velký, výrazný, pro hero sekci.
+
+Podnadpis (.subtitle): 1.4rem na desktopu, 1rem na mobilech – menší, ale stále čitelné.
+
+Nadpisy sekcí (h2): 2.8rem na desktopu, 2rem na mobilech.
+
+Běžný text (p): 1.3rem až 1rem v závislosti na sekci a zařízení.
+
+Odkazy a tlačítka: 1rem až 1.3rem.
+
+Efekty: Hlavní nadpis má gradientní výplň (-webkit-background-clip: text) a animaci textGlow (pulsující stín), což dodává dynamiku.
+
+----------
+
+Nadpis: Vpravo dole hned pod nadpisem by mělo být menším písmem napsáno by plojharsim
