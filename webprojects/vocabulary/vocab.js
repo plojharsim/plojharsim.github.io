@@ -1,132 +1,135 @@
 const vocabDatabases = {
     "cs-en": [
-        // Unit 1: Who we are
-        // 1.1 Clothes and accessories
-        { cs: "pásek", en: "belt" },
-        { cs: "kozačky/vysoké boty", en: "boots" },
-        { cs: "náramek", en: "bracelet" },
-        { cs: "svetr (vpředu na knoflíky)", en: "cardigan" },
-        { cs: "kabát", en: "coat" },
-        { cs: "šaty", en: "dress" },
-        { cs: "náušnice", en: "earrings" },
-        { cs: "kabelka", en: "handbag" },
-        { cs: "klobouk", en: "hat" },
-        { cs: "mikina s kapucí", en: "hoodie" },
-        { cs: "bunda, sako", en: "jacket" },
-        { cs: "legíny", en: "leggings" },
-        { cs: "prsten", en: "ring" },
-        { cs: "sandály", en: "sandals" },
-        { cs: "šátek", en: "scarf" },
-        { cs: "košile", en: "shirt" },
-        { cs: "kraťasy", en: "shorts" },
-        { cs: "sukně", en: "skirt" },
-        { cs: "ponožky", en: "socks" },
-        { cs: "kravata", en: "tie" },
+        // Unit 2: Working hard
+        // 2.1 Jobs
+        { cs: "architekt", en: "architect" },
+        { cs: "uklízeč", en: "cleaner" },
+        { cs: "programátor", en: "computer programmer" },
+        { cs: "zubař", en: "dentist" },
+        { cs: "inženýr", en: "engineer" },
+        { cs: "tovární dělník", en: "factory worker" },
+        { cs: "hasič", en: "firefighter" },
+        { cs: "kadeřnice", en: "hairdresser" },
+        { cs: "novinář", en: "journalist" },
+        { cs: "sekretářka", en: "secretary" },
+        { cs: "průvodce", en: "tour guide" },
 
-        // 1.1 Patterns
-        { cs: "kostkovaný", en: "checked" },
-        { cs: "květovaný", en: "floral" },
-        { cs: "jednoduchý, bez ozdob", en: "plain" },
-        { cs: "tečkovaný", en: "spotted" },
-        { cs: "pruhovaný", en: "striped" },
+        // 2.1 Describing jobs
+        { cs: "špatně placený", en: "badly paid" },
+        { cs: "nudný", en: "boring" },
+        { cs: "náročný", en: "challenging" },
+        { cs: "nebezpečný", en: "dangerous" },
+        { cs: "jednoduchý, snadný", en: "easy" },
+        { cs: "vzrušující", en: "exciting" },
+        { cs: "bezpečný", en: "safe" },
+        { cs: "dobře placený", en: "well-paid" },
 
-        // 1.1 Style
-        { cs: "plandavý", en: "baggy" },
-        { cs: "neformální", en: "casual" },
-        { cs: "elegantní", en: "smart" },
-        { cs: "těsný/upnutý", en: "tight" },
+        // 2.1 Other
+        { cs: "poté", en: "after that" },
+        { cs: "most", en: "bridge" },
+        { cs: "zákazník", en: "customer" },
+        { cs: "vydělat peníze", en: "earn money" },
+        { cs: "kancelář", en: "office" },
+        { cs: "cesta, silnice", en: "road" },
+        { cs: "továrna na hračky", en: "toy factory" },
 
-        // 1.2 Say it!
-        { cs: "To je nechutné!", en: "That's gross!" },
-        { cs: "To je nejhorší den mého života!", en: "This is the worst day of my life!" },
+        // 2.2 Say it!
+        { cs: "Je obzvlášť vytížená.", en: "She's super busy." },
+        { cs: "Zvládnu to.", en: "I can manage." },
 
-        // 1.3 Other
-        { cs: "Cornwallský páštik", en: "Cornish pasty" },
-        { cs: "kilo", en: "meat pie" },
-        { cs: "nastavit budík", en: "set an alarm" },
-        { cs: "surfovací prkno", en: "surfboard" },
-        { cs: "konvice na čaj", en: "teapot" },
-        { cs: "práčka", en: "washing machine" },
+        // 2.2 Make and do
+        { cs: "dělat domácí úkoly", en: "do my homework" },
+        { cs: "umýt nádobí", en: "do the dishes" },
+        { cs: "nakupovat", en: "do the shopping" },
+        { cs: "udělat jak nejlépe umíš", en: "do your best" },
+        { cs: "udělat nepořádek", en: "make a mess" },
+        { cs: "udělat snídani/oběd/večeři", en: "make breakfast/lunch/dinner" },
+        { cs: "ustlat postel", en: "make your bed" },
 
-        // 1.4 Communication
-        { cs: "Hádej, co se stalo v sobotu!", en: "Guess what happened on Saturday!" },
-        { cs: "Nejdříve jsme šli do Lacey.", en: "First, we went to Lacey's." },
-        { cs: "Nakonec našla pár bot, který se jí líbil.", en: "Finally, she found a pair she liked." },
+        // 2.2 Other
+        { cs: "zástěra", en: "apron" },
+        { cs: "chilli papričky", en: "chillies" },
+        { cs: "přijít, přijet", en: "come round" },
+        { cs: "splněný sen", en: "dream come true" },
+        { cs: "džentlmen", en: "gentleman" },
+        { cs: "rukavice", en: "gloves" },
+        { cs: "pomíchat", en: "mix up" },
+        { cs: "papriky", en: "peppers" },
+        { cs: "pikantní", en: "spicy" },
+        { cs: "servírka", en: "waitress" },
 
-        // 1.4 Reacting
-        { cs: "Jak těpné/tlapné/divné!", en: "How embarrassing/strange!" },
-        { cs: "Ten má štěstí!", en: "Lucky him!" },
-        { cs: "Pěkně!", en: "Nice one!" },
-        { cs: "Tak co udělal?", en: "So what did he do?" },
-        { cs: "Co se stalo potom?", en: "So what happened next?" },
-        { cs: "Co potom?", en: "Then what?" },
+        // 2.3 Other
+        { cs: "kánoe", en: "canoe" },
+        { cs: "slovník", en: "dictionary" },
+        { cs: "vzdát se", en: "give up" },
+        { cs: "za mých časů", en: "in my day" },
+        { cs: "ztracený kmen", en: "lost tribe" },
+        { cs: "motorový člun", en: "motorboat" },
+        { cs: "vybitá baterie", en: "out of battery" },
+        { cs: "pádlo", en: "paddle" },
+        { cs: "aplikace překladač", en: "translate app" },
 
-        // 1.5 Hair styles
-        { cs: "plešatý", en: "bald" },
-        { cs: "vousatý/plnovous", en: "beard" },
-        { cs: "kudrnaté vlasy", en: "curly hair" },
-        { cs: "barvené vlasy", en: "dyed hair" },
-        { cs: "knír", en: "moustache" },
-        { cs: "ohlazené vlasy", en: "shaved hair" },
-        { cs: "ježaté vlasy", en: "spiky hair" },
-        { cs: "rovné vlasy", en: "straight hair" },
-        { cs: "vlnité vlasy", en: "wavy hair" },
+        // 2.4 Communication
+        // 2.4 Asking for advice
+        { cs: "Můžu se tě zeptat na radu?", en: "Can I ask your advice?" },
+        { cs: "Potřebuji tvoji radu.", en: "I need your advice." },
+        { cs: "Co bych si měl vzít na sebe?", en: "What should I wear?" },
 
-        // 1.6 Other
-        { cs: "zraněná bunda", en: "leather jacket" },
-        { cs: "hlasitý", en: "loud" },
-        { cs: "mír", en: "peace" },
-        { cs: "zavírací spínačik", en: "safety pins" },
-        { cs: "triko", en: "trick" },
+        // 2.4 Giving advice
+        { cs: "Podle mého názoru by sis neměl brát tenisky.", en: "In my opinion, you shouldn't wear trainers." },
+        { cs: "Co kdyby sis oblékl bílou košili?", en: "What about wearing a white shirt?" },
+        { cs: "Nechceš si vzít kravatu?", en: "Why don't you put on a tie?" },
+        { cs: "Měl bys vypadat elegantně.", en: "You should look smart." },
+        { cs: "Neměl bys brát tenisky.", en: "You shouldn't wear trainers." },
 
-        // 1.6 Personality adjectives
-        { cs: "přátelský", en: "friendly" },
-        { cs: "štědrý", en: "generous" },
-        { cs: "pracovitý/pilný", en: "hard-working" },
-        { cs: "upřímný", en: "honest" },
-        { cs: " laskavý", en: "kind" },
-        { cs: "lenivý", en: "lazy" },
-        { cs: "otevřený", en: "open" },
-        { cs: "zdvořilý, slušný", en: "polite" },
-        { cs: "drzý", en: "rude" },
-        { cs: "sobecký", en: "selfish" },
-        { cs: "vážný", en: "serious" },
-        { cs: "plachý", en: "shy" },
-        { cs: "upovídaný", en: "talkative" },
+        // 2.4 Other
+        { cs: "záchranné středisko zvířat", en: "animal rescue centre" },
+        { cs: "mimochodem", en: "by the way" },
+        { cs: "uklidit klece", en: "clean the cages" },
+        { cs: "dobrovolník", en: "volunteer" },
 
-        // 1.6 Negative adjectives
-        { cs: "nedůstojný", en: "dishonest" },
-        { cs: "nechápavý", en: "disorganised" },
-        { cs: "netrpělivý", en: "impatient" },
-        { cs: "nezvůle", en: "impolite" },
-        { cs: "nepřátelský", en: "unfriendly" },
-        { cs: "nevlídný, nepříjemný", en: "unkind" },
+        // 2.5 Other
+        { cs: "hořký", en: "bitter" },
+        { cs: "artista; účinkující v cirkuse", en: "circus performer" },
+        { cs: "cirkusová škola", en: "circus school" },
+        { cs: "krémový", en: "creamy" },
+        { cs: "nevýhoda", en: "disadvantage" },
+        { cs: "odborník", en: "expert" },
+        { cs: "žonglovat", en: "juggle" },
+        { cs: "nože", en: "knives" },
+        { cs: "trénovat; cvičit", en: "practise" },
+        { cs: "skóre", en: "score" },
+        { cs: "podívat se na", en: "take a look at" },
+        { cs: "ochutnat", en: "taste" },
+        { cs: "vlak", en: "train" },
 
-        // 1.7 Other
-        { cs: "obdivovat", en: "admire" },
-        { cs: "první dojem", en: "first impression" },
-        { cs: "reálný", en: "realise" },
-        { cs: "vědec", en: "scientist" },
+        // 2.6 Learning and exams
+        { cs: "opsat něčí práci", en: "copy someone's work" },
+        { cs: "dařit se/nedařit se", en: "do well/badly" },
+        { cs: "dostat dobrou/špatnou známku", en: "get a good/bad mark" },
+        { cs: "odevzdat domácí úkol", en: "hand in your homework" },
+        { cs: "udělat zkoušku/neudělat zkoušku", en: "pass/fail an exam" },
+        { cs: "opakovat si na test", en: "revise for a test" },
 
-        // 1.7 Other
-        { cs: "vycházet s opou dobe od prvního okamžiku", en: "get on well straight away" },
+        // 2.6 Expressions with take
+        { cs: "vyfotit", en: "take a photo" },
+        { cs: "psát test/dělat zkoušku", en: "take an exam" },
+        { cs: "vzít si léky", en: "take medicine" },
+        { cs: "dělat si poznámky", en: "take notes" },
+        { cs: "jet autobusem", en: "take the bus" },
 
-        // 1.8 Get Culture
-        { cs: "střední škola", en: "secondary school" },
+        // 2.6 Other
+        { cs: "dostatek/dost", en: "enough" },
+        { cs: "úspěšný", en: "successful" },
 
-        // 1.8 Clothes for special occasions
-        { cs: "dudy", en: "bagpipes" },
-        { cs: "jasný, zářivý", en: "bright" },
-        { cs: "slavit", en: "celebrate" },
-        { cs: "přijet", en: "come over" },
-        { cs: "nastrojit se, vyparádit se", en: "dress up" },
-        { cs: "haggis", en: "haggis" },
-        { cs: "boty na vysokém podpatku", en: "high-heeled shoes" },
-        { cs: "příležitost", en: "occasion" },
-        { cs: "poezie", en: "poetry" },
-        { cs: "školní ples", en: "school prom" },
-        { cs: "tweed", en: "tweed" },
-        { cs: "svatba", en: "wedding" }
+        // 2.7 Other
+        { cs: "atmosféra", en: "atmosphere" },
+        { cs: "venkov", en: "countryside" },
+        { cs: "lunapark, kolotoče", en: "funfair" },
+        { cs: "hřiště", en: "playground" },
+        { cs: "školní klub/kroužek", en: "school club" },
+        { cs: "školní výlet", en: "school trip" },
+        { cs: "trampolína", en: "trampoline" }
     ],
     "cs-de": [
         { cs: "Sešity", de: "Hefte" },
