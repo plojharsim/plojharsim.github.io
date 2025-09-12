@@ -1,1 +1,405 @@
-<h1>plojharsim</h1>
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>plojharsim - Osobní portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background-color: #0a0f0a;
+            color: #d0e0d0;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: rgba(10, 15, 10, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 127, 0.2);
+            padding: 1rem 2rem;
+            z-index: 1000;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #00ff7f;
+            text-decoration: none;
+        }
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #00ff7f;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+        .nav-links li a {
+            color: #d0e0d0;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .nav-links li a:hover {
+            color: #00ff7f;
+        }
+        .nav-links li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -6px;
+            left: 0;
+            background-color: #00ff7f;
+            transition: width 0.3s ease;
+        }
+        .nav-links li a:hover::after {
+            width: 100%;
+        }
+        .hero {
+            position: relative;
+            height: calc(100vh - 70px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: url('https://source.unsplash.com/random/1920x1080?green,tech') no-repeat center/cover;
+            animation: backgroundPulse 10s infinite alternate;
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 15, 10, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        .content {
+            text-align: center;
+            z-index: 1;
+        }
+        .animate-text {
+            font-size: 5rem;
+            font-weight: 900;
+            letter-spacing: -3px;
+            background: linear-gradient(90deg, #00ff7f, #00cc66);
+            -webkit-background-clip: text;
+            color: transparent;
+            animation: textGlow 2s ease-in-out infinite alternate;
+        }
+        .subtitle {
+            font-size: 1.4rem;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: slideUp 2s ease-out;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #0a0f0a;
+            background-color: #00ff7f;
+            text-decoration: none;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0, 255, 127, 0.4);
+            transition: all 0.3s ease;
+        }
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 255, 127, 0.6);
+        }
+        .about {
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+        .glass-container {
+            background: rgba(20, 28, 20, 0.3);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid rgba(0, 255, 127, 0.2);
+            animation: float 4s ease-in-out infinite;
+        }
+        .about h2 {
+            font-size: 2.8rem;
+            margin-bottom: 1.5rem;
+            color: #00ff7f;
+        }
+        .about p {
+            font-size: 1.3rem;
+        }
+        .skills {
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+        .skills h2 {
+            font-size: 2.8rem;
+            margin-bottom: 2.5rem;
+            color: #00ff7f;
+        }
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .skill-card {
+            background: rgba(31, 42, 31, 0.4);
+            padding: 2rem;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: 1px solid rgba(0, 255, 127, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.5s ease;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .skill-card:hover {
+            transform: translateZ(20px) rotateX(10deg);
+            border-color: #00ff7f;
+            box-shadow: 0 15px 30px rgba(0, 255, 127, 0.4);
+        }
+        footer {
+            padding: 4rem 2rem;
+            background: rgba(26, 35, 26, 0.9);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0, 255, 127, 0.2);
+        }
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        .footer-brand h3 {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #00ff7f;
+            margin-bottom: 0.5rem;
+        }
+        .footer-brand p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        .footer-links h4 {
+            font-size: 1.2rem;
+            color: #00ff7f;
+            margin-bottom: 1rem;
+        }
+        .footer-links ul {
+            list-style: none;
+        }
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+        .footer-links a {
+            color: #d0e0d0;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .footer-links a:hover {
+            color: #00ff7f;
+            padding-left: 0.5rem;
+        }
+        .footer-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #00ff7f;
+            transition: width 0.3s ease;
+        }
+        .footer-links a:hover::after {
+            width: 100%;
+        }
+        @keyframes backgroundPulse {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.2); }
+        }
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 10px rgba(0, 255, 127, 0.5); }
+            100% { text-shadow: 0 0 20px rgba(0, 255, 127, 0.8); }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 0.9; }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+            }
+            .nav-container {
+                flex-wrap: wrap;
+                position: relative;
+            }
+            .nav-toggle {
+                display: block;
+            }
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+                padding: 1rem 0;
+                background: rgba(10, 15, 10, 0.9);
+                backdrop-filter: blur(10px);
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .animate-text {
+                font-size: 4rem;
+            }
+            .subtitle {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            .cta-button {
+                padding: 0.8rem 2rem;
+                font-size: 1rem;
+            }
+            .about {
+                padding: 3rem 1rem;
+            }
+            .glass-container {
+                padding: 2rem;
+                max-width: 100%;
+            }
+            .about h2 {
+                font-size: 2rem;
+            }
+            .about p {
+                font-size: 1rem;
+            }
+            .skills {
+                padding: 3rem 1rem;
+            }
+            .skills h2 {
+                font-size: 2rem;
+            }
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+                padding: 2rem 1rem;
+            }
+            .footer-brand, .footer-links {
+                width: 100%;
+            }
+            .footer-links ul {
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">plojharsim</a>
+            <button class="nav-toggle">☰</button>
+            <ul class="nav-links">
+                <li><a href="#about">O mně</a></li>
+                <li><a href="#skills">Dovednosti</a></li>
+            </ul>
+        </div>
+    </nav>
+    <section class="hero">
+        <div class="overlay"></div>
+        <div class="content">
+            <h1 class="animate-text">Šimon Plojhar</h1>
+            <p class="subtitle">Webový vývojář a Python nadšenec</p>
+            <a href="#about" class="cta-button">O mně</a>
+        </div>
+    </section>
+    <section class="about" id="about">
+        <div class="glass-container">
+            <h2>O mně</h2>
+            <p>Jsem začínající vývojář se zaměřením na webové technologie a Python. Rád tvořím moderní a responzivní weby s důrazem na čistý kód a uživatelskou přívětivost. Moje projekty zahrnují osobní portfolio, automatizační skripty a webové aplikace.</p>
+        </div>
+    </section>
+    <section class="skills" id="skills">
+        <h2>Dovednosti</h2>
+        <div class="skills-grid">
+            <div class="skill-card">HTML5</div>
+            <div class="skill-card">CSS3</div>
+            <div class="skill-card">JavaScript</div>
+            <div class="skill-card">Python</div>
+            <div class="skill-card">Git</div>
+        </div>
+    </section>
+    <footer>
+        <div class="footer-container">
+            <div class="footer-brand">
+                <h3>plojharsim</h3>
+                <p>© 2025 Šimon Plojhar</p>
+            </div>
+            <div class="footer-links">
+                <h4>Navigace</h4>
+                <ul>
+                    <li><a href="#about">O mně</a></li>
+                    <li><a href="#skills">Dovednosti</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+    <script>
+        const navToggle = document.querySelector('.nav-toggle');
+        const navLinks = document.querySelector('.nav-links');
+        navToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
