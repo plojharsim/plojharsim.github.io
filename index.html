@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>plojharsim - Rozcestník</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background-color: #0a0f0a;
+            color: #d0e0d0;
+            line-height: 1.8;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+        }
+        .hero-text {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            background: linear-gradient(90deg, #00ff7f, #00cc66);
+            -webkit-background-clip: text;
+            color: transparent;
+            animation: textGlow 2s ease-in-out infinite alternate;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        .link-card {
+            background: rgba(20, 28, 20, 0.3);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(0, 255, 127, 0.2);
+            transition: all 0.3s ease;
+            transform: scale(1);
+        }
+        .link-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: #00ff7f;
+            box-shadow: 0 8px 20px rgba(0, 255, 127, 0.4);
+        }
+        .link-card a {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            padding: 1rem 2rem;
+            color: #d0e0d0;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .link-card a:hover {
+            color: #00ff7f;
+        }
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 10px rgba(0, 255, 127, 0.5); }
+            100% { text-shadow: 0 0 20px rgba(0, 255, 127, 0.8); }
+        }
+        @media (max-width: 768px) {
+            .hero-text {
+                font-size: 2rem;
+            }
+            .subtitle {
+                font-size: 1rem;
+            }
+            .link-card a {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="hero-text">plojharsim.cz</h1>
+        <p class="subtitle">Odkazy na moje projekty</p>
+        <div class="link-card">
+            <a href="https://plojharsim.cz/portfolio">Osobní portfolio</a>
+        </div>
+        <div class="link-card">
+            <a href="https://plojharsim.cz/procvicovani">Procvičování</a>
+        </div>
+        <div class="link-card">
+            <a href="https://plojharsim.cz/youtube">YouTube</a>
+        </div>
+    </div>
+</body>
+</html>
