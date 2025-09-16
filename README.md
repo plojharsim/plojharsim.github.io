@@ -1,2 +1,2 @@
 # plojharsim.cz
-Můj web plojharsim.cz :D.
+Můj web plojharsim.cz. :D
