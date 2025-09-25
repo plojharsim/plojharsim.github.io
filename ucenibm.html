@@ -814,6 +814,9 @@
                 buttons[selectedAbcdIndex].style.color = '#fff';
                 quizFeedback.textContent = "Správně! 🎉";
                 infiniteCorrectAnswers++;
+                if (!isInfiniteMode) {
+                    score++;
+                }
             } else {
                 buttons[selectedAbcdIndex].style.backgroundColor = '#ef4444';
                 buttons[selectedAbcdIndex].style.color = '#fff';
@@ -870,6 +873,9 @@
                     quizWriteFeedback.textContent = `Správně! ✅`;
                     quizWriteFeedback.style.color = '#22c55e';
                     infiniteCorrectAnswers++;
+                    if (!isInfiniteMode) {
+                        score++;
+                    }
                 } else {
                     quizWriteFeedback.textContent = `Špatně! ❌`;
                     quizWriteFeedback.style.color = '#ef4444';
