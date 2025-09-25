@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Učení bylo mučení</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0f0a;
+            color: #d0e0d0;
+            line-height: 1.8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex-grow: 1;
+        }
+        .glass-container {
+            background: rgba(20, 28, 20, 0.3);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 3rem;
+            border: 1px solid rgba(0, 255, 127, 0.2);
+            animation: float 4s ease-in-out infinite;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0a0f0a;
+            background-color: #00ff7f;
+            text-decoration: none;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0, 255, 127, 0.4);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(0, 255, 127, 0.6);
+        }
+        input, textarea {
+            background-color: rgba(31, 42, 31, 0.4);
+            border: 1px solid rgba(0, 255, 127, 0.2);
+            color: #d0e0d0;
+            border-radius: 10px;
+            padding: 0.75rem;
+            transition: border-color 0.3s ease;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #00ff7f;
+        }
+        #loading-spinner {
+            border: 4px solid rgba(0, 255, 127, 0.2);
+            border-top: 4px solid #00ff7f;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 15, 10, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #00ff7f;
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div id="modal-container" class="hidden"></div>
+    <div class="container flex flex-col items-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600">
+            Učení bylo mučení
+        </h1>
+        <p class="text-lg text-center text-green-300 mb-8">by plojharsim</p>
+        <div class="glass-container w-full">
+            <div id="unified-input-ui">
+                <h2 class="text-2xl font-bold mb-6 text-center text-green-400">Zadej téma, kterému se chceš věnovat:</h2>
+                <div class="flex items-center justify-start mb-6">
+                    <label for="use-notes-toggle" class="text-sm font-semibold text-green-300 mr-3">Použít poznámky ze sešitu:</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="use-notes-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div id="notes-upload-section" class="mb-4 hidden">
+                    <label for="file-input" class="block text-sm font-semibold mb-2 text-green-300">Nahrát soubor (.txt, .md, .pdf):</label>
+                    <input type="file" id="file-input" class="hidden" accept=".txt,.md,.pdf">
+                    <button id="upload-btn" class="cta-button w-full">Nahrát soubor</button>
+                    <span id="file-name" class="block text-center text-sm mt-2"></span>
+                </div>
+                <div class="mb-4">
+                    <label id="main-label" for="main-input" class="block text-sm font-semibold mb-2 text-green-300">Téma:</label>
+                    <textarea id="main-input" rows="4" class="w-full rounded-md p-3 focus:ring-2 focus:ring-green-400 focus:border-transparent" placeholder="Například: 'Co je fotosyntéza?' nebo 'První světová válka'"></textarea>
+                </div>
+                <div id="focus-topic-section" class="mb-4 hidden">
+                    <label for="focus-topic" class="block text-sm font-semibold mb-2 text-green-300">Zaměřit se na téma (volitelné):</label>
+                    <input type="text" id="focus-topic" class="w-full rounded-md p-3 focus:ring-2 focus-ring-green-400 focus:border-transparent" placeholder="Například: 'První světová válka' (pokud máš poznámky o celých dějinách Evropy')">
+                </div>
+                <div class="flex justify-center">
+                    <button id="submit-btn" class="cta-button">Pokračovat</button>
+                </div>
+            </div>
+            <div id="learning-methods-ui" class="hidden text-center">
+                <h2 id="learning-methods-title" class="text-2xl font-bold mb-6 text-center text-green-400"></h2>
+                <div class="flex flex-col space-y-4 mb-8">
+                    <button id="quiz-abcd-btn" class="cta-button w-full">Kvíz (ABCD)</button>
+                    <button id="quiz-write-btn" class="cta-button w-full">Kvíz (textová odpověď)</button>
+                    <button id="dynamic-text-btn" class="cta-button w-full">Shrnutí tématu</button>
+                </div>
+            </div>
+            <div id="quiz-abcd-setup" class="hidden text-center">
+                <h2 class="text-2xl font-bold mb-6 text-center text-green-400">Nastavení kvízu</h2>
+                <p class="mb-4">Téma: <span id="quiz-setup-topic" class="font-bold"></span></p>
+                <div class="mb-4">
+                    <label for="num-questions" class="block text-sm font-semibold mb-2">Počet otázek:</label>
+                    <input type="number" id="num-questions" min="1" max="100" value="3" class="w-full rounded-md p-3 text-center">
+                </div>
+                <div class="flex justify-center">
+                    <button id="start-quiz-btn" class="cta-button">Spustit kvíz</button>
+                </div>
+            </div>
+            <div id="quiz-write-setup" class="hidden text-center">
+                <h2 class="text-2xl font-bold mb-6 text-center text-green-400">Nastavení kvízu</h2>
+                <p class="mb-4">Téma: <span id="quiz-write-setup-topic" class="font-bold"></span></p>
+                <div class="mb-4">
+                    <label for="num-write-questions" class="block text-sm font-semibold mb-2">Počet otázek:</label>
+                    <input type="number" id="num-write-questions" min="1" max="100" value="3" class="w-full rounded-md p-3 text-center">
+                </div>
+                <div class="flex justify-center">
+                    <button id="start-write-quiz-btn" class="cta-button">Spustit kvíz</button>
+                </div>
+            </div>
+            <div id="quiz-abcd-ui" class="hidden">
+                <div id="abcd-quiz-content" class="hidden">
+                    <h2 id="quiz-question-title" class="text-2xl font-bold mb-6 text-center text-green-400"></h2>
+                    <div id="quiz-question" class="mb-4 text-lg text-center"></div>
+                    <div id="quiz-options" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"></div>
+                    <div id="quiz-feedback" class="text-center mb-4 text-green-400 font-bold"></div>
+                    <div id="quiz-controls" class="flex justify-center space-x-4">
+                        <button id="next-question-btn" class="cta-button hidden">Další otázka</button>
+                    </div>
+                </div>
+                <div id="abcd-score-screen" class="hidden text-center">
+                    <h2 class="text-3xl font-bold mb-4 text-green-400">Kvíz dokončen!</h2>
+                    <p id="abcd-final-score" class="text-xl mb-8"></p>
+                    <button id="quiz-abcd-finish-btn" class="cta-button">Zpět na hlavní stranu</button>
+                </div>
+            </div>
+            <div id="quiz-write-ui" class="hidden">
+                <div id="write-quiz-content" class="hidden">
+                    <h2 id="quiz-write-question-title" class="text-2xl font-bold mb-6 text-center text-green-400"></h2>
+                    <div id="quiz-write-question" class="mb-4 text-lg"></div>
+                    <div class="mb-4">
+                        <textarea id="quiz-write-answer" rows="4" class="w-full rounded-md p-3 focus:ring-2 focus:ring-green-400 focus:border-transparent" placeholder="Napiš svou odpověď..."></textarea>
+                    </div>
+                    <div id="quiz-write-feedback" class="text-center mb-4 font-bold min-h-[1.5rem]"></div>
+                    <div class="flex flex-col items-center">
+                        <div id="explanation-and-next-btn-container" class="flex flex-col space-y-4 w-full">
+                            <button id="next-write-btn" class="cta-button hidden">Další otázka</button>
+                            <button id="showExplanationBtn" class="cta-button hidden">Zobrazit vysvětlení</button>
+                        </div>
+                        <button id="submit-write-btn" class="cta-button w-full mb-4">Odeslat odpověď</button>
+                        <div id="explanationText" class="text-center text-gray-400 hidden mt-4"></div>
+                    </div>
+                </div>
+                <div id="write-score-screen" class="hidden text-center">
+                    <h2 class="text-3xl font-bold mb-4 text-green-400">Kvíz dokončen!</h2>
+                    <p id="write-final-score" class="text-xl mb-8"></p>
+                    <button id="quiz-write-finish-btn" class="cta-button">Zpět na hlavní stranu</button>
+                </div>
+            </div>
+            <div id="response-area" class="mt-8 p-4 rounded-lg bg-neutral-900 border border-green-700 hidden">
+                <h3 id="response-title" class="text-lg font-bold mb-2 text-green-400"></h3>
+                <div id="response-content" class="whitespace-pre-wrap"></div>
+                <div id="back-button-container" class="flex justify-end mt-4 hidden">
+                    <button id="back-btn" class="cta-button">Zpět</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const unifiedInputUi = document.getElementById('unified-input-ui');
+        const submitBtn = document.getElementById('submit-btn');
+        const mainInput = document.getElementById('main-input');
+        const mainLabel = document.getElementById('main-label');
+        const useNotesToggle = document.getElementById('use-notes-toggle');
+        const notesUploadSection = document.getElementById('notes-upload-section');
+        const uploadBtn = document.getElementById('upload-btn');
+        const fileInput = document.getElementById('file-input');
+        const fileNameSpan = document.getElementById('file-name');
+        const focusTopicSection = document.getElementById('focus-topic-section');
+        const focusTopicInput = document.getElementById('focus-topic');
+        const learningMethodsUi = document.getElementById('learning-methods-ui');
+        const learningMethodsTitle = document.getElementById('learning-methods-title');
+        const quizAbcdBtn = document.getElementById('quiz-abcd-btn');
+        const quizWriteBtn = document.getElementById('quiz-write-btn');
+        const dynamicTextBtn = document.getElementById('dynamic-text-btn');
+        const quizAbcdSetup = document.getElementById('quiz-abcd-setup');
+        const quizSetupTopic = document.getElementById('quiz-setup-topic');
+        const numQuestionsInput = document.getElementById('num-questions');
+        const startQuizBtn = document.getElementById('start-quiz-btn');
+        const quizWriteSetup = document.getElementById('quiz-write-setup');
+        const quizWriteSetupTopic = document.getElementById('quiz-write-setup-topic');
+        const numWriteQuestionsInput = document.getElementById('num-write-questions');
+        const startWriteQuizBtn = document.getElementById('start-write-quiz-btn');
+        const quizAbcdUi = document.getElementById('quiz-abcd-ui');
+        const abcdQuizContent = document.getElementById('abcd-quiz-content');
+        const abcdScoreScreen = document.getElementById('abcd-score-screen');
+        const abcdFinalScore = document.getElementById('abcd-final-score');
+        const quizQuestionTitle = document.getElementById('quiz-question-title');
+        const quizQuestion = document.getElementById('quiz-question');
+        const quizOptions = document.getElementById('quiz-options');
+        const quizFeedback = document.getElementById('quiz-feedback');
+        const nextQuestionBtn = document.getElementById('next-question-btn');
+        const quizAbcdFinishBtn = document.getElementById('quiz-abcd-finish-btn');
+        const quizWriteUi = document.getElementById('quiz-write-ui');
+        const writeQuizContent = document.getElementById('write-quiz-content');
+        const writeScoreScreen = document.getElementById('write-score-screen');
+        const writeFinalScore = document.getElementById('write-final-score');
+        const quizWriteQuestionTitle = document.getElementById('quiz-write-question-title');
+        const quizWriteQuestion = document.getElementById('quiz-write-question');
+        const quizWriteAnswer = document.getElementById('quiz-write-answer');
+        const quizWriteFeedback = document.getElementById('quiz-write-feedback');
+        const submitWriteBtn = document.getElementById('submit-write-btn');
+        const nextWriteBtn = document.getElementById('next-write-btn');
+        const quizWriteFinishBtn = document.getElementById('quiz-write-finish-btn');
+        const responseArea = document.getElementById('response-area');
+        const responseTitle = document.getElementById('response-title');
+        const responseContent = document.getElementById('response-content');
+        const modalContainer = document.getElementById('modal-container');
+        const backBtn = document.getElementById('back-btn');
+        const backButtonContainer = document.getElementById('back-button-container');
+        const showExplanationBtn = document.getElementById('showExplanationBtn');
+        const explanationTextDiv = document.getElementById('explanationText');
+        let currentTopic = '';
+        let currentNotes = '';
+        let currentFocusTopic = '';
+        let currentExplanation = '';
+        const apiKey = "AIzaSyBxsR3KzYNe_jmb5mg1TMLMS9N2duYVd0A";
+        useNotesToggle.addEventListener('change', () => {
+            if (useNotesToggle.checked) {
+                mainLabel.textContent = "Poznámky ze sešitu:";
+                mainInput.placeholder = "Sem můžeš zkopírovat celý obsah ze sešitu, nebo nahrát soubor.";
+                notesUploadSection.classList.remove('hidden');
+                focusTopicSection.classList.remove('hidden');
+            } else {
+                mainLabel.textContent = "Téma:";
+                mainInput.placeholder = "Například: 'Co je fotosyntéza?' nebo 'První světová válka'";
+                notesUploadSection.classList.add('hidden');
+                focusTopicSection.classList.add('hidden');
+                fileNameSpan.textContent = '';
+                mainInput.disabled = false;
+            }
+            mainInput.value = '';
+            focusTopicInput.value = '';
+        });
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+            fileNameSpan.textContent = `Načítám soubor: ${file.name}...`;
+            mainInput.value = '';
+            mainInput.disabled = true;
+            if (file.type === 'application/pdf') {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const arrayBuffer = e.target.result;
+                    try {
+                        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                        let fullText = '';
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const textContent = await page.getTextContent();
+                            fullText += textContent.items.map(item => item.str).join(' ');
+                        }
+                        if (fullText.trim().length === 0) {
+                            showModal("Soubor PDF neobsahuje text nebo je naskenovaný obrázek bez textové vrstvy. Zkus jiný soubor.", 'error');
+                            resetUploadState();
+                            return;
+                        }
+                        mainInput.value = fullText;
+                        fileNameSpan.textContent = `Soubor: ${file.name} načten.`;
+                    } catch (error) {
+                        console.error("Chyba při zpracování PDF:", error);
+                        showModal("Nastala chyba při zpracování PDF. Zkus to prosím s jiným souborem.", 'error');
+                        resetUploadState();
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    mainInput.value = e.target.result;
+                    fileNameSpan.textContent = `Soubor: ${file.name} načten.`;
+                };
+                reader.onerror = () => {
+                    showModal("Nepodařilo se načíst soubor.", 'error');
+                    resetUploadState();
+                };
+                reader.readAsText(file);
+            }
+        });
+        function resetUploadState() {
+            fileNameSpan.textContent = '';
+            mainInput.value = '';
+            mainInput.disabled = false;
+            fileInput.value = '';
+        }
+        function showModal(content, type = 'info') {
+            modalContainer.innerHTML = `
+                <div class="modal">
+                    <div class="bg-neutral-900 p-8 rounded-xl shadow-2xl border border-green-700 max-w-sm text-center transform scale-95 md:scale-100 animate-fadeIn">
+                        <div class="flex justify-center mb-4">
+                            <span class="text-3xl">${type === 'error' ? '❌' : '💡'}</span>
+                        </div>
+                        <p class="text-lg mb-6">${content}</p>
+                        <button class="cta-button" onclick="document.getElementById('modal-container').classList.add('hidden')">Zavřít</button>
+                    </div>
+                </div>
+            `;
+            modalContainer.classList.remove('hidden');
+        }
+        function showLoading(message = "Generuji...") {
+            responseArea.classList.remove('hidden');
+            responseContent.innerHTML = '<div id="loading-spinner" class="mx-auto my-4"></div>';
+            responseTitle.textContent = message;
+            backButtonContainer.classList.add('hidden');
+            quizAbcdUi.classList.add('hidden');
+            quizWriteUi.classList.add('hidden');
+            quizWriteSetup.classList.add('hidden');
+            quizAbcdSetup.classList.add('hidden');
+        }
+        function showLearningMethods(topic, notes, focusTopic) {
+            currentTopic = topic;
+            currentNotes = notes;
+            currentFocusTopic = focusTopic;
+            unifiedInputUi.classList.add('hidden');
+            learningMethodsUi.classList.remove('hidden');
+            if (notes) {
+                learningMethodsTitle.textContent = `Téma: Poznámky${focusTopic ? ` - ${focusTopic}` : ''}`;
+            } else {
+                learningMethodsTitle.textContent = `Téma: ${topic}`;
+            }
+            responseArea.classList.add('hidden');
+            quizAbcdSetup.classList.add('hidden');
+            quizWriteSetup.classList.add('hidden');
+            quizAbcdUi.classList.add('hidden');
+            quizWriteUi.classList.add('hidden');
+        }
+        function resetApp() {
+            unifiedInputUi.classList.remove('hidden');
+            learningMethodsUi.classList.add('hidden');
+            responseArea.classList.add('hidden');
+            quizAbcdSetup.classList.add('hidden');
+            quizWriteSetup.classList.add('hidden');
+            quizAbcdUi.classList.add('hidden');
+            quizWriteUi.classList.add('hidden');
+            mainInput.value = '';
+            useNotesToggle.checked = false;
+            mainLabel.textContent = "Téma:";
+            mainInput.placeholder = "Například: 'Co je fotosyntéza?' nebo 'První světová válka'";
+            notesUploadSection.classList.add('hidden');
+            focusTopicSection.classList.add('hidden');
+            fileNameSpan.textContent = '';
+            mainInput.disabled = false;
+            currentTopic = '';
+            currentNotes = '';
+            currentFocusTopic = '';
+        }
+        submitBtn.addEventListener('click', () => {
+            const inputValue = mainInput.value.trim();
+            const focusValue = focusTopicInput.value.trim();
+            if (inputValue === "") {
+                showModal("Prosím, zadej téma, nebo vlož poznámky.");
+                return;
+            }
+            if (useNotesToggle.checked) {
+                showLearningMethods('', inputValue, focusValue);
+            } else {
+                showLearningMethods(inputValue, '', '');
+            }
+        });
+        async function getAIResponse(topic, notes, focusTopic, title, isQuiz = false, quizType = 'abcd') {
+            learningMethodsUi.classList.add('hidden');
+            showLoading();
+            try {
+                let finalPrompt = '';
+                if (notes) {
+                    if (isQuiz) {
+                        if (quizType === 'abcd') {
+                            const numQuestions = numQuestionsInput.value;
+                            if (focusTopic) {
+                                finalPrompt = `Použij následující text jako svůj hlavní zdroj informací: "${notes}"\n\nNyní vytvoř JSON pole s ${numQuestions} otázkami s výběrem ze 4 odpovědí. Zaměř se pouze na téma: "${focusTopic}". V poli budou objekty se třemi klíči: "question" (otázka), "options" (pole 4 stringů) a "correctAnswer" (index správné odpovědi, 0 až 3). Otázky se musí týkat výhradně zaměřeného tématu.`;
+                            } else {
+                                finalPrompt = `Použij následující text jako svůj hlavní zdroj informací: "${notes}"\n\nNyní vytvoř JSON pole s ${numQuestions} otázkami s výběrem ze 4 odpovědí. V poli budou objekty se třemi klíči: "question" (otázka), "options" (pole 4 stringů) a "correctAnswer" (index správné odpovědi, 0 až 3). Otázky se musí týkat výhradně textu.`;
+                            }
+                        } else if (quizType === 'write') {
+                            const numQuestions = numWriteQuestionsInput.value;
+                            if (focusTopic) {
+                                finalPrompt = `Použij následující text jako svůj hlavní zdroj informací: "${notes}"\n\nNyní vytvoř JSON pole se ${numQuestions} otázkami a jejich krátkými, přesnými odpověďmi. Odpověď by měla být jasná a bez zbytečných detailů. V poli budou objekty se dvěma klíči: "question" (otázka) a "correctAnswer" (string se správnou odpovědí). Otázky se musí týkat výhradně zaměřeného tématu.`;
+                            } else {
+                                finalPrompt = `Použij následující text jako svůj hlavní zdroj informací: "${notes}"\n\nNyní vytvoř JSON pole se ${numQuestions} otázkami a jejich krátkými, přesnými odpověďmi. Odpověď by měla být jasná a bez zbytečných detailů. V poli budou objekty se dvěma klíči: "question" (otázka) a "correctAnswer" (string se správnou odpovědí). Otázky se musí týkat výhradně textu.`;
+                            }
+                        }
+                    } else {
+                        if (focusTopic) {
+                            finalPrompt = `Použij následující text jako svůj hlavní zdroj informací: "${notes}"\n\nVytvoř pro mě ucelené, přehledné a srozumitelné shrnutí. Zaměř se pouze na téma: "${focusTopic}". Shrnutí by mělo obsahovat hlavní myšlenky a klíčové body, psané přátelsky a bez zbytečných detailů. Shrnutí se musí týkat výhradně zaměřeného tématu. Nikdy nepoužívej formátování Markdownu.`;
+                        } else {
+                            finalPrompt = `Použij následující text jako svůj hlavní zdroj informací: "${notes}"\n\nVytvoř pro mě ucelené, přehledné a srozumitelné shrnutí. Shrnutí by mělo obsahovat hlavní myšlenky a klíčové body, psané přátelsky a bez zbytečných detailů. Shrnutí se musí týkat výhradně textu. Nikdy nepoužívej formátování Markdownu.`;
+                        }
+                    }
+                } else {
+                    if (isQuiz) {
+                        if (quizType === 'abcd') {
+                            const numQuestions = numQuestionsInput.value;
+                            finalPrompt = `Téma: "${topic}"\n\nVytvoř mi JSON pole s ${numQuestions} otázkami s výběrem ze 4 odpovědí. V poli budou objekty se třemi klíči: "question" (otázka), "options" (pole 4 stringů) a "correctAnswer" (index správné odpovědi, 0 až 3).`;
+                        } else if (quizType === 'write') {
+                            const numQuestions = numWriteQuestionsInput.value;
+                            finalPrompt = `Téma: "${topic}"\n\nVytvoř JSON pole se ${numQuestions} otázkami a jejich krátkými, přesnými odpověďmi. Odpověď by měla být jasná a bez zbytečných detailů. V poli budou objekty se dvěma klíči: "question" (otázka) a "correctAnswer" (string se správnou odpovědí).`;
+                        }
+                    } else {
+                        finalPrompt = `Téma: "${topic}"\n\nVytvoř pro mě ucelené, přehledné a srozumitelné shrnutí. Shrnutí by mělo obsahovat hlavní myšlenky a klíčové body, psané přátelsky a bez zbytečných detailů. Nikdy nepoužívej formátování Markdownu.`;
+                    }
+                }
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [{ text: finalPrompt }]
+                    }],
+                };
+                if (isQuiz) {
+                    if (quizType === 'abcd') {
+                        payload.generationConfig = {
+                            responseMimeType: "application/json",
+                            responseSchema: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        "question": { "type": "STRING" },
+                                        "options": {
+                                            "type": "ARRAY",
+                                            "items": { "type": "STRING" }
+                                        },
+                                        "correctAnswer": { "type": "NUMBER" }
+                                    },
+                                    "propertyOrdering": ["question", "options", "correctAnswer"]
+                                }
+                            }
+                        };
+                    } else if (quizType === 'write') {
+                        payload.generationConfig = {
+                            responseMimeType: "application/json",
+                            responseSchema: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        "question": { "type": "STRING" },
+                                        "correctAnswer": { "type": "STRING" }
+                                    },
+                                    "propertyOrdering": ["question", "correctAnswer"]
+                                }
+                            }
+                        }
+                    }
+                }
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status} ${response.statusText}`);
+                }
+                const result = await response.json();
+                if (isQuiz) {
+                    try {
+                        const jsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (!jsonText) throw new Error("API vrátil prázdnou odpověď.");
+                        quizData = JSON.parse(jsonText);
+                        if (quizData.length === 0) {
+                            showModal("AI nedokázala vytvořit otázky. Zkus to prosím znovu.");
+                            showLearningMethods(currentTopic, currentNotes, currentFocusTopic);
+                            return;
+                        }
+                        currentQuestionIndex = 0;
+                        score = 0;
+                        if (quizType === 'abcd') {
+                            quizAbcdUi.classList.remove('hidden');
+                            abcdQuizContent.classList.remove('hidden');
+                            abcdScoreScreen.classList.add('hidden');
+                            displayAbcdQuestion();
+                        } else {
+                            quizWriteUi.classList.remove('hidden');
+                            writeQuizContent.classList.remove('hidden');
+                            writeScoreScreen.classList.add('hidden');
+                            displayWriteQuestion();
+                        }
+                        responseArea.classList.add('hidden');
+                    } catch (e) {
+                        console.error("Chyba při zpracování JSON kvízu:", e);
+                        responseContent.innerHTML = 'Nastala chyba při vytváření kvízu. Zkus to prosím znovu.';
+                        backButtonContainer.classList.remove('hidden');
+                    }
+                } else {
+                    const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (text) {
+                        responseTitle.textContent = title;
+                        responseContent.textContent = text;
+                        backButtonContainer.classList.remove('hidden');
+                    } else {
+                        responseContent.innerHTML = 'Něco se pokazilo. Zkus to prosím znovu.';
+                        backButtonContainer.classList.remove('hidden');
+                    }
+                }
+            } catch (error) {
+                console.error("Chyba při volání AI API:", error);
+                responseContent.innerHTML = 'Nastala chyba. Prosím, zkontroluj konzoli a zkus to znovu.';
+                backButtonContainer.classList.remove('hidden');
+            }
+        }
+        async function getAIJudgement(userAnswer, correctAnswer) {
+            try {
+                let prompt = '';
+                if (currentNotes) {
+                    if (currentFocusTopic) {
+                        prompt = `Použij následující text jako svůj hlavní zdroj informací: "${currentNotes}"\n\nZhodnoť odpověď studenta na otázku. Zaměř se na téma: "${currentFocusTopic}". Je sémanticky správná a věcně odpovídá správné odpovědi, i když není napsaná doslova? Správná odpověď je: "${correctAnswer}". Odpověď studenta je: "${userAnswer}". Odpověz mi jako JSON objekt se dvěma klíči: "isCorrect" (boolean) a "explanation" (pokud je isCorrect false, vysvětli proč a napiš správnou odpověď, jinak nech prázdný string).`;
+                    } else {
+                        prompt = `Použij následující text jako svůj hlavní zdroj informací: "${currentNotes}"\n\nZhodnoť odpověď studenta na otázku. Je sémanticky správná a věcně odpovídá správné odpovědi, i když není napsaná doslova? Správná odpověď je: "${correctAnswer}". Odpověď studenta je: "${userAnswer}". Odpověz mi jako JSON objekt se dvěma klíči: "isCorrect" (boolean) a "explanation" (pokud je isCorrect false, vysvětli proč a napiš správnou odpověď, jinak nech prázdný string).`;
+                    }
+                } else {
+                    prompt = `Téma: "${currentTopic}"\n\nZhodnoť odpověď studenta na otázku. Je sémanticky správná a věcně odpovídá správné odpovědi, i když není napsaná doslova? Správná odpověď je: "${correctAnswer}". Odpověď studenta je: "${userAnswer}". Odpověz mi jako JSON objekt se dvěma klíči: "isCorrect" (boolean) a "explanation" (pokud je isCorrect false, vysvětli proč a napiš správnou odpověď, jinak nech prázdný string).`;
+                }
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [{ text: prompt }]
+                    }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "isCorrect": { "type": "BOOLEAN" },
+                                "explanation": { "type": "STRING" }
+                            },
+                            "propertyOrdering": ["isCorrect", "explanation"]
+                        }
+                    }
+                };
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    console.error("API call failed with status:", response.status, response.statusText);
+                    return { isCorrect: false, explanation: "Při vyhodnocování se vyskytl problém s připojením. Zkus to prosím znovu." };
+                }
+                const result = await response.json();
+                const jsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!jsonText) {
+                    console.error("API returned no text content for judgement.");
+                    return { isCorrect: false, explanation: "AI nemohla odpověď vyhodnotit. Zkus to prosím znovu s jinou odpovědí." };
+                }
+                try {
+                    return JSON.parse(jsonText);
+                } catch (jsonError) {
+                    console.error("Failed to parse JSON from API:", jsonText, jsonError);
+                    return { isCorrect: false, explanation: "AI vrátila nečitelnou odpověď. Zkus to prosím znovu." };
+                }
+            } catch (error) {
+                console.error("Error during AI judgement:", error);
+                return { isCorrect: false, explanation: "Nastala chyba při vyhodnocování. Zkus to prosím znovu." };
+            }
+        }
+        let quizData = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        function displayAbcdQuestion() {
+            if (currentQuestionIndex >= quizData.length) {
+                abcdQuizContent.classList.add('hidden');
+                abcdScoreScreen.classList.remove('hidden');
+                abcdFinalScore.textContent = `Tvůj výsledek je ${score} z ${quizData.length}.`;
+                return;
+            }
+            const currentQuestion = quizData[currentQuestionIndex];
+            quizQuestionTitle.textContent = `Otázka ${currentQuestionIndex + 1} z ${quizData.length}`;
+            quizQuestion.textContent = currentQuestion.question;
+            quizOptions.innerHTML = '';
+            quizFeedback.textContent = '';
+            quizFeedback.classList.remove('hidden');
+            nextQuestionBtn.classList.add('hidden');
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = "cta-button w-full text-sm md:text-base";
+                button.onclick = () => handleAbcdAnswer(index, button);
+                quizOptions.appendChild(button);
+            });
+        }
+        function handleAbcdAnswer(selectedIndex, selectedButton) {
+            const currentQuestion = quizData[currentQuestionIndex];
+            const correctIndex = currentQuestion.correctAnswer;
+            const buttons = quizOptions.querySelectorAll('button');
+            buttons.forEach(button => button.disabled = true);
+            if (selectedIndex === correctIndex) {
+                selectedButton.style.backgroundColor = '#22c55e';
+                selectedButton.style.color = '#fff';
+                quizFeedback.textContent = "Správně!";
+                score++;
+            } else {
+                selectedButton.style.backgroundColor = '#ef4444';
+                selectedButton.style.color = '#fff';
+                buttons[correctIndex].style.backgroundColor = '#22c55e';
+                buttons[correctIndex].style.color = '#fff';
+                quizFeedback.textContent = `Špatně. Správná odpověď je: ${currentQuestion.options[correctIndex]}`;
+            }
+            nextQuestionBtn.classList.remove('hidden');
+        }
+        function displayWriteQuestion() {
+            if (currentQuestionIndex >= quizData.length) {
+                writeQuizContent.classList.add('hidden');
+                writeScoreScreen.classList.remove('hidden');
+                writeFinalScore.textContent = `Gratuluji! Získal jsi ${score} bodů z ${quizData.length}.`;
+                return;
+            }
+            showExplanationBtn.classList.add('hidden');
+            nextWriteBtn.classList.add('hidden');
+            explanationTextDiv.classList.add('hidden');
+            explanationTextDiv.textContent = '';
+            currentExplanation = '';
+            submitWriteBtn.classList.remove('hidden');
+            const currentQuestion = quizData[currentQuestionIndex];
+            quizWriteQuestionTitle.textContent = `Otázka ${currentQuestionIndex + 1} z ${quizData.length}`;
+            quizWriteQuestion.textContent = currentQuestion.question;
+            quizWriteAnswer.value = '';
+            quizWriteAnswer.classList.remove('hidden');
+            quizWriteAnswer.disabled = false;
+            quizWriteFeedback.textContent = '';
+            quizWriteFeedback.classList.remove('hidden');
+        }
+        submitWriteBtn.addEventListener('click', async () => {
+            const userAnswer = quizWriteAnswer.value.trim();
+            if (userAnswer === "") {
+                showModal("Prosím, napiš svou odpověď.");
+                return;
+            }
+            submitWriteBtn.disabled = true;
+            submitWriteBtn.textContent = 'Vyhodnocuji...';
+            submitWriteBtn.style.cursor = 'not-allowed';
+            quizWriteFeedback.textContent = '';
+            showExplanationBtn.classList.add('hidden');
+            explanationTextDiv.classList.add('hidden');
+            const currentQuestion = quizData[currentQuestionIndex];
+            try {
+                const judgement = await getAIJudgement(userAnswer, currentQuestion.correctAnswer);
+                if (judgement.isCorrect) {
+                    quizWriteFeedback.textContent = `Správně! ✅`;
+                    quizWriteFeedback.style.color = '#22c55e';
+                    score++;
+                } else {
+                    quizWriteFeedback.textContent = `Špatně! ❌`;
+                    quizWriteFeedback.style.color = '#ef4444';
+                    currentExplanation = judgement.explanation;
+                    showExplanationBtn.classList.remove('hidden');
+                }
+            } catch (error) {
+                quizWriteFeedback.textContent = `Nastala neočekávaná chyba. Zkus to prosím znovu.`;
+                quizWriteFeedback.style.color = '#ef4444';
+            } finally {
+                quizWriteAnswer.disabled = true;
+                submitWriteBtn.classList.add('hidden');
+                nextWriteBtn.classList.remove('hidden');
+                submitWriteBtn.disabled = false;
+                submitWriteBtn.textContent = 'Odeslat odpověď';
+                submitWriteBtn.style.cursor = 'pointer';
+            }
+        });
+        showExplanationBtn.addEventListener('click', () => {
+            if (explanationTextDiv.classList.contains('hidden')) {
+                explanationTextDiv.textContent = currentExplanation;
+                explanationTextDiv.classList.remove('hidden');
+                showExplanationBtn.textContent = 'Skrýt vysvětlení';
+            } else {
+                explanationTextDiv.classList.add('hidden');
+                showExplanationBtn.textContent = 'Zobrazit vysvětlení';
+            }
+        });
+        nextWriteBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            displayWriteQuestion();
+        });
+        quizAbcdBtn.addEventListener('click', () => {
+            learningMethodsUi.classList.add('hidden');
+            quizAbcdSetup.classList.remove('hidden');
+            quizSetupTopic.textContent = currentNotes ? `Poznámky ${currentFocusTopic ? `(${currentFocusTopic})` : ''}` : currentTopic;
+        });
+        startQuizBtn.addEventListener('click', () => {
+            const numQuestions = numQuestionsInput.value;
+            if (numQuestions < 1 || numQuestions > 100) {
+                showModal("Zadej počet otázek mezi 1 a 100.");
+                return;
+            }
+            quizAbcdSetup.classList.add('hidden');
+            getAIResponse(currentTopic, currentNotes, currentFocusTopic, "Kvíz (ABCD)", true, 'abcd');
+        });
+        quizWriteBtn.addEventListener('click', () => {
+            learningMethodsUi.classList.add('hidden');
+            quizWriteSetup.classList.remove('hidden');
+            quizWriteSetupTopic.textContent = currentNotes ? `Poznámky ${currentFocusTopic ? `(${currentFocusTopic})` : ''}` : currentTopic;
+        });
+        startWriteQuizBtn.addEventListener('click', () => {
+            const numQuestions = numWriteQuestionsInput.value;
+            if (numQuestions < 1 || numQuestions > 100) {
+                showModal("Zadej počet otázek mezi 1 a 100.");
+                return;
+            }
+            quizWriteSetup.classList.add('hidden');
+            getAIResponse(currentTopic, currentNotes, currentFocusTopic, 'Kvíz (textová odpověď)', true, 'write');
+        });
+        dynamicTextBtn.addEventListener('click', () => {
+            getAIResponse(currentTopic, currentNotes, currentFocusTopic, `Shrnutí: ${currentTopic || (currentNotes ? 'Poznámky' : '')}${currentFocusTopic ? ` - ${currentFocusTopic}` : ''}`, false);
+        });
+        nextQuestionBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            displayAbcdQuestion();
+        });
+        quizAbcdFinishBtn.addEventListener('click', () => {
+            resetApp();
+        });
+        quizWriteFinishBtn.addEventListener('click', () => {
+            resetApp();
+        });
+        backBtn.addEventListener('click', () => {
+            showLearningMethods(currentTopic, currentNotes, currentFocusTopic);
+        });
+        document.addEventListener('DOMContentLoaded', resetApp);
+    </script>
+</body>
+</html>
