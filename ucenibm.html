@@ -133,6 +133,10 @@
         input:checked + .slider:before {
             transform: translateX(20px);
         }
+        .option-button.selected {
+            background-color: rgba(0, 255, 127, 0.4);
+            border: 1px solid #00ff7f;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -204,11 +208,13 @@
             </div>
             <div id="quiz-abcd-ui" class="hidden">
                 <div id="abcd-quiz-content" class="hidden">
+                    <p id="infinite-score-display-abcd" class="text-center text-green-400 font-bold text-lg mb-4"></p>
                     <h2 id="quiz-question-title" class="text-2xl font-bold mb-6 text-center text-green-400"></h2>
                     <div id="quiz-question" class="mb-4 text-lg text-center"></div>
                     <div id="quiz-options" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"></div>
                     <div id="quiz-feedback" class="text-center mb-4 text-green-400 font-bold"></div>
                     <div id="quiz-controls" class="flex justify-center space-x-4">
+                         <button id="check-abcd-btn" class="cta-button hidden">Zkontrolovat odpověď</button>
                         <button id="next-question-btn" class="cta-button hidden">Další otázka</button>
                     </div>
                 </div>
@@ -220,6 +226,7 @@
             </div>
             <div id="quiz-write-ui" class="hidden">
                 <div id="write-quiz-content" class="hidden">
+                     <p id="infinite-score-display-write" class="text-center text-green-400 font-bold text-lg mb-4"></p>
                     <h2 id="quiz-write-question-title" class="text-2xl font-bold mb-6 text-center text-green-400"></h2>
                     <div id="quiz-write-question" class="mb-4 text-lg"></div>
                     <div class="mb-4">
@@ -306,6 +313,9 @@
         const explanationTextDiv = document.getElementById('explanationText');
         const startInfiniteAbcdBtn = document.getElementById('start-infinite-abcd-btn');
         const startInfiniteWriteBtn = document.getElementById('start-infinite-write-btn');
+        const infiniteScoreDisplayAbcd = document.getElementById('infinite-score-display-abcd');
+        const infiniteScoreDisplayWrite = document.getElementById('infinite-score-display-write');
+        const checkAbcdBtn = document.getElementById('check-abcd-btn');
         let currentTopic = '';
         let currentNotes = '';
         let currentFocusTopic = '';
@@ -315,6 +325,9 @@
         let quizData = [];
         let currentQuestionIndex = 0;
         let score = 0;
+        let infiniteCorrectAnswers = 0;
+        let infiniteTotalQuestions = 0;
+        let selectedAbcdIndex = null;
         const apiKey = "AIzaSyBxsR3KzYNe_jmb5mg1TMLMS9N2duYVd0A";
         let askedQuestions = [];
         useNotesToggle.addEventListener('change', () => {
@@ -452,6 +465,10 @@
             currentFocusTopic = '';
             isInfiniteMode = false;
             askedQuestions = [];
+            infiniteCorrectAnswers = 0;
+            infiniteTotalQuestions = 0;
+            infiniteScoreDisplayAbcd.textContent = `Správně: 0 / 0`;
+            infiniteScoreDisplayWrite.textContent = `Správně: 0 / 0`;
         }
         submitBtn.addEventListener('click', () => {
             const inputValue = mainInput.value.trim();
@@ -574,6 +591,8 @@
                            quizAbcdUi.classList.remove('hidden');
                            abcdQuizContent.classList.remove('hidden');
                            abcdScoreScreen.classList.add('hidden');
+                           infiniteScoreDisplayAbcd.classList.remove('hidden');
+                           updateInfiniteScoreDisplay();
                            displayAbcdQuestion();
                            document.getElementById('quiz-question-title').textContent = 'Nekonečné procvičování';
                            nextQuestionBtn.textContent = 'Další otázka';
@@ -581,6 +600,8 @@
                            quizWriteUi.classList.remove('hidden');
                            writeQuizContent.classList.remove('hidden');
                            writeScoreScreen.classList.add('hidden');
+                           infiniteScoreDisplayWrite.classList.remove('hidden');
+                           updateInfiniteScoreDisplay();
                            displayWriteQuestion();
                        }
                     } else {
@@ -650,12 +671,14 @@
                         quizAbcdUi.classList.remove('hidden');
                         abcdQuizContent.classList.remove('hidden');
                         abcdScoreScreen.classList.add('hidden');
+                        infiniteScoreDisplayAbcd.classList.add('hidden');
                         nextQuestionBtn.textContent = 'Další otázka';
                         displayAbcdQuestion();
                     } else {
                         quizWriteUi.classList.remove('hidden');
                         writeQuizContent.classList.remove('hidden');
                         writeScoreScreen.classList.add('hidden');
+                        infiniteScoreDisplayWrite.classList.add('hidden');
                         displayWriteQuestion();
                     }
                     responseArea.classList.add('hidden');
@@ -740,6 +763,13 @@
                 return { isCorrect: false, explanation: "Nastala chyba při vyhodnocování. Zkus to prosím znovu." };
             }
         }
+        function updateInfiniteScoreDisplay() {
+             if (quizType === 'abcd') {
+                 infiniteScoreDisplayAbcd.textContent = `Správně: ${infiniteCorrectAnswers} / ${infiniteTotalQuestions}`;
+             } else {
+                 infiniteScoreDisplayWrite.textContent = `Správně: ${infiniteCorrectAnswers} / ${infiniteTotalQuestions}`;
+             }
+        }
         function displayAbcdQuestion() {
             if (!isInfiniteMode && currentQuestionIndex >= quizData.length) {
                 abcdQuizContent.classList.add('hidden');
@@ -755,33 +785,44 @@
             quizOptions.innerHTML = '';
             quizFeedback.textContent = '';
             nextQuestionBtn.classList.add('hidden');
+            checkAbcdBtn.classList.add('hidden');
+            selectedAbcdIndex = null;
             currentQuestion.options.forEach((option, index) => {
                 const button = document.createElement('button');
                 button.textContent = option;
-                button.className = "cta-button w-full text-sm md:text-base";
-                button.onclick = () => handleAbcdAnswer(index, button);
+                button.className = "cta-button w-full text-sm md:text-base option-button";
+                button.onclick = () => selectAbcdOption(index, button);
                 quizOptions.appendChild(button);
             });
         }
-        function handleAbcdAnswer(selectedIndex, selectedButton) {
+        function selectAbcdOption(selectedIndex, selectedButton) {
+            const buttons = quizOptions.querySelectorAll('.option-button');
+            buttons.forEach(button => button.classList.remove('selected'));
+            selectedButton.classList.add('selected');
+            selectedAbcdIndex = selectedIndex;
+            checkAbcdBtn.classList.remove('hidden');
+        }
+        function checkAbcdAnswer() {
+            if (selectedAbcdIndex === null) return;
             const currentQuestion = quizData[currentQuestionIndex];
             const correctIndex = currentQuestion.correctAnswer;
-            const buttons = quizOptions.querySelectorAll('button');
+            const buttons = quizOptions.querySelectorAll('.option-button');
             buttons.forEach(button => button.disabled = true);
-            if (selectedIndex === correctIndex) {
-                selectedButton.style.backgroundColor = '#22c55e';
-                selectedButton.style.color = '#fff';
+            checkAbcdBtn.classList.add('hidden');
+            if (selectedAbcdIndex === correctIndex) {
+                buttons[selectedAbcdIndex].style.backgroundColor = '#22c55e';
+                buttons[selectedAbcdIndex].style.color = '#fff';
                 quizFeedback.textContent = "Správně! 🎉";
-                if (!isInfiniteMode) {
-                    score++;
-                }
+                infiniteCorrectAnswers++;
             } else {
-                selectedButton.style.backgroundColor = '#ef4444';
-                selectedButton.style.color = '#fff';
+                buttons[selectedAbcdIndex].style.backgroundColor = '#ef4444';
+                buttons[selectedAbcdIndex].style.color = '#fff';
                 buttons[correctIndex].style.backgroundColor = '#22c55e';
                 buttons[correctIndex].style.color = '#fff';
                 quizFeedback.textContent = `Špatně. Správná odpověď je: ${currentQuestion.options[correctIndex]}`;
             }
+            infiniteTotalQuestions++;
+            updateInfiniteScoreDisplay();
             nextQuestionBtn.classList.remove('hidden');
         }
         function displayWriteQuestion() {
@@ -828,9 +869,7 @@
                 if (judgement.isCorrect) {
                     quizWriteFeedback.textContent = `Správně! ✅`;
                     quizWriteFeedback.style.color = '#22c55e';
-                    if (!isInfiniteMode) {
-                        score++;
-                    }
+                    infiniteCorrectAnswers++;
                 } else {
                     quizWriteFeedback.textContent = `Špatně! ❌`;
                     quizWriteFeedback.style.color = '#ef4444';
@@ -847,6 +886,8 @@
                 submitWriteBtn.disabled = false;
                 submitWriteBtn.textContent = 'Odeslat odpověď';
                 submitWriteBtn.style.cursor = 'pointer';
+                infiniteTotalQuestions++;
+                updateInfiniteScoreDisplay();
             }
         });
         showExplanationBtn.addEventListener('click', () => {
@@ -869,10 +910,16 @@
         });
         startInfiniteAbcdBtn.addEventListener('click', () => {
             quizAbcdSetup.classList.add('hidden');
+            infiniteCorrectAnswers = 0;
+            infiniteTotalQuestions = 0;
+            updateInfiniteScoreDisplay();
             getAIResponse(currentTopic, currentNotes, currentFocusTopic, 'Nekonečné procvičování', true, 'abcd', true);
         });
         startInfiniteWriteBtn.addEventListener('click', () => {
             quizWriteSetup.classList.add('hidden');
+            infiniteCorrectAnswers = 0;
+            infiniteTotalQuestions = 0;
+            updateInfiniteScoreDisplay();
             getAIResponse(currentTopic, currentNotes, currentFocusTopic, 'Nekonečné procvičování', true, 'write', true);
         });
         quizAbcdBtn.addEventListener('click', () => {
@@ -906,6 +953,7 @@
         dynamicTextBtn.addEventListener('click', () => {
             getAIResponse(currentTopic, currentNotes, currentFocusTopic, `Shrnutí: ${currentTopic || (currentNotes ? 'Poznámky' : '')}${currentFocusTopic ? ` - ${currentFocusTopic}` : ''}`, false);
         });
+        checkAbcdBtn.addEventListener('click', checkAbcdAnswer);
         nextQuestionBtn.addEventListener('click', () => {
             if (isInfiniteMode) {
                 getAIResponse(currentTopic, currentNotes, currentFocusTopic, 'Nekonečné procvičování', true, 'abcd', true);
