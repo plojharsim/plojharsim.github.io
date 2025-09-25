@@ -185,8 +185,9 @@
                     <label for="num-questions" class="block text-sm font-semibold mb-2">Počet otázek:</label>
                     <input type="number" id="num-questions" min="1" max="100" value="3" class="w-full rounded-md p-3 text-center">
                 </div>
-                <div class="flex justify-center">
+                <div class="flex flex-col space-y-4 justify-center">
                     <button id="start-quiz-btn" class="cta-button">Spustit kvíz</button>
+                    <button id="start-infinite-abcd-btn" class="cta-button !bg-transparent border border-green-500 text-green-500 hover:!bg-green-500 hover:!text-black">Nekonečné procvičování</button>
                 </div>
             </div>
             <div id="quiz-write-setup" class="hidden text-center">
@@ -196,8 +197,9 @@
                     <label for="num-write-questions" class="block text-sm font-semibold mb-2">Počet otázek:</label>
                     <input type="number" id="num-write-questions" min="1" max="100" value="3" class="w-full rounded-md p-3 text-center">
                 </div>
-                <div class="flex justify-center">
+                <div class="flex flex-col space-y-4 justify-center">
                     <button id="start-write-quiz-btn" class="cta-button">Spustit kvíz</button>
+                    <button id="start-infinite-write-btn" class="cta-button !bg-transparent border border-green-500 text-green-500 hover:!bg-green-500 hover:!text-black">Nekonečné procvičování</button>
                 </div>
             </div>
             <div id="quiz-abcd-ui" class="hidden">
@@ -302,11 +304,19 @@
         const backButtonContainer = document.getElementById('back-button-container');
         const showExplanationBtn = document.getElementById('showExplanationBtn');
         const explanationTextDiv = document.getElementById('explanationText');
+        const startInfiniteAbcdBtn = document.getElementById('start-infinite-abcd-btn');
+        const startInfiniteWriteBtn = document.getElementById('start-infinite-write-btn');
         let currentTopic = '';
         let currentNotes = '';
         let currentFocusTopic = '';
         let currentExplanation = '';
-        const apiKey = "AIzaSyBxsR3KzYNe_jmb5mg1TMLMS9N2duYVd0A";
+        let quizType = '';
+        let isInfiniteMode = false;
+        let quizData = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        const apiKey = "";
+        let askedQuestions = [];
         useNotesToggle.addEventListener('change', () => {
             if (useNotesToggle.checked) {
                 mainLabel.textContent = "Poznámky ze sešitu:";
@@ -440,6 +450,8 @@
             currentTopic = '';
             currentNotes = '';
             currentFocusTopic = '';
+            isInfiniteMode = false;
+            askedQuestions = [];
         }
         submitBtn.addEventListener('click', () => {
             const inputValue = mainInput.value.trim();
@@ -454,140 +466,217 @@
                 showLearningMethods(inputValue, '', '');
             }
         });
-        async function getAIResponse(topic, notes, focusTopic, title, isQuiz = false, quizType = 'abcd') {
+        async function generateQuizContent(isInfinite) {
+            let finalPrompt = '';
+            let responseSchema = {};
+            let isAbcd = quizType === 'abcd';
+            if (currentNotes) {
+                if (isAbcd) {
+                    finalPrompt = `Použij následující text jako svůj hlavní zdroj informací: "${currentNotes}"\n\nNyní vytvoř JSON objekt s jednou otázkou s výběrem ze 4 odpovědí. Zaměř se pouze na téma: "${currentFocusTopic}". Objekt bude mít tři klíče: "question" (otázka), "options" (pole 4 stringů) a "correctAnswer" (index správné odpovědi, 0 až 3). Otázka se musí týkat výhradně zaměřeného tématu.`;
+                    responseSchema = {
+                        type: "OBJECT",
+                        properties: {
+                            "question": { "type": "STRING" },
+                            "options": {
+                                "type": "ARRAY",
+                                "items": { "type": "STRING" }
+                            },
+                            "correctAnswer": { "type": "NUMBER" }
+                        },
+                        "propertyOrdering": ["question", "options", "correctAnswer"]
+                    };
+                } else {
+                    finalPrompt = `Použij následující text jako svůj hlavní zdroj informací: "${currentNotes}"\n\nNyní vytvoř JSON objekt s jednou otázkou a krátkou, přesnou odpovědí. Odpověď by měla být jasná a bez zbytečných detailů. Zaměř se pouze na téma: "${currentFocusTopic}". Objekt bude mít dva klíče: "question" (otázka) a "correctAnswer" (string se správnou odpovědí). Otázka se musí týkat výhradně zaměřeného tématu.`;
+                    responseSchema = {
+                        type: "OBJECT",
+                        properties: {
+                            "question": { "type": "STRING" },
+                            "correctAnswer": { "type": "STRING" }
+                        },
+                        "propertyOrdering": ["question", "correctAnswer"]
+                    };
+                }
+            } else {
+                if (isAbcd) {
+                    finalPrompt = `Téma: "${currentTopic}"\n\nVytvoř mi JSON objekt s jednou otázkou s výběrem ze 4 odpovědí. Objekt bude mít tři klíče: "question" (otázka), "options" (pole 4 stringů) a "correctAnswer" (index správné odpovědi, 0 až 3).`;
+                    responseSchema = {
+                        type: "OBJECT",
+                        properties: {
+                            "question": { "type": "STRING" },
+                            "options": {
+                                "type": "ARRAY",
+                                "items": { "type": "STRING" }
+                            },
+                            "correctAnswer": { "type": "NUMBER" }
+                        },
+                        "propertyOrdering": ["question", "options", "correctAnswer"]
+                    };
+                } else {
+                    finalPrompt = `Téma: "${currentTopic}"\n\nVytvoř mi JSON objekt s jednou otázkou a krátkou, přesnou odpovědí. Odpověď by měla být jasná a bez zbytečných detailů. Objekt bude mít dva klíče: "question" (otázka) a "correctAnswer" (string se správnou odpovědí).`;
+                    responseSchema = {
+                        type: "OBJECT",
+                        properties: {
+                            "question": { "type": "STRING" },
+                            "correctAnswer": { "type": "STRING" }
+                        },
+                        "propertyOrdering": ["question", "correctAnswer"]
+                    };
+                }
+            }
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: finalPrompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: responseSchema
+                }
+            };
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status} ${response.statusText}`);
+            }
+            const result = await response.json();
+            const jsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!jsonText) throw new Error("API vrátil prázdnou odpověď.");
+            return JSON.parse(jsonText);
+        }
+        async function getAIResponse(topic, notes, focusTopic, title, isQuiz, type, isInfinite) {
             learningMethodsUi.classList.add('hidden');
+            isInfiniteMode = isInfinite;
+            quizType = type;
             showLoading();
             try {
-                let finalPrompt = '';
-                if (notes) {
-                    if (isQuiz) {
-                        if (quizType === 'abcd') {
-                            const numQuestions = numQuestionsInput.value;
-                            if (focusTopic) {
-                                finalPrompt = `Použij následující text jako svůj hlavní zdroj informací: "${notes}"\n\nNyní vytvoř JSON pole s ${numQuestions} otázkami s výběrem ze 4 odpovědí. Zaměř se pouze na téma: "${focusTopic}". V poli budou objekty se třemi klíči: "question" (otázka), "options" (pole 4 stringů) a "correctAnswer" (index správné odpovědi, 0 až 3). Otázky se musí týkat výhradně zaměřeného tématu.`;
+                if (isInfinite) {
+                    let questionData = null;
+                    let retries = 0;
+                    while (!questionData && retries < 5) {
+                        try {
+                            const newQuestion = await generateQuizContent(true);
+                            if (newQuestion && newQuestion.question && !askedQuestions.includes(newQuestion.question)) {
+                                questionData = newQuestion;
+                                askedQuestions.push(newQuestion.question);
                             } else {
-                                finalPrompt = `Použij následující text jako svůj hlavní zdroj informací: "${notes}"\n\nNyní vytvoř JSON pole s ${numQuestions} otázkami s výběrem ze 4 odpovědí. V poli budou objekty se třemi klíči: "question" (otázka), "options" (pole 4 stringů) a "correctAnswer" (index správné odpovědi, 0 až 3). Otázky se musí týkat výhradně textu.`;
+                                retries++;
                             }
-                        } else if (quizType === 'write') {
-                            const numQuestions = numWriteQuestionsInput.value;
-                            if (focusTopic) {
-                                finalPrompt = `Použij následující text jako svůj hlavní zdroj informací: "${notes}"\n\nNyní vytvoř JSON pole se ${numQuestions} otázkami a jejich krátkými, přesnými odpověďmi. Odpověď by měla být jasná a bez zbytečných detailů. V poli budou objekty se dvěma klíči: "question" (otázka) a "correctAnswer" (string se správnou odpovědí). Otázky se musí týkat výhradně zaměřeného tématu.`;
-                            } else {
-                                finalPrompt = `Použij následující text jako svůj hlavní zdroj informací: "${notes}"\n\nNyní vytvoř JSON pole se ${numQuestions} otázkami a jejich krátkými, přesnými odpověďmi. Odpověď by měla být jasná a bez zbytečných detailů. V poli budou objekty se dvěma klíči: "question" (otázka) a "correctAnswer" (string se správnou odpovědí). Otázky se musí týkat výhradně textu.`;
-                            }
-                        }
-                    } else {
-                        if (focusTopic) {
-                            finalPrompt = `Použij následující text jako svůj hlavní zdroj informací: "${notes}"\n\nVytvoř pro mě ucelené, přehledné a srozumitelné shrnutí. Zaměř se pouze na téma: "${focusTopic}". Shrnutí by mělo obsahovat hlavní myšlenky a klíčové body, psané přátelsky a bez zbytečných detailů. Shrnutí se musí týkat výhradně zaměřeného tématu. Nikdy nepoužívej formátování Markdownu.`;
-                        } else {
-                            finalPrompt = `Použij následující text jako svůj hlavní zdroj informací: "${notes}"\n\nVytvoř pro mě ucelené, přehledné a srozumitelné shrnutí. Shrnutí by mělo obsahovat hlavní myšlenky a klíčové body, psané přátelsky a bez zbytečných detailů. Shrnutí se musí týkat výhradně textu. Nikdy nepoužívej formátování Markdownu.`;
+                        } catch (e) {
+                            retries++;
                         }
                     }
-                } else {
-                    if (isQuiz) {
+                    if (questionData) {
+                        quizData = [questionData];
+                        currentQuestionIndex = 0;
+                        responseArea.classList.add('hidden');
                         if (quizType === 'abcd') {
-                            const numQuestions = numQuestionsInput.value;
-                            finalPrompt = `Téma: "${topic}"\n\nVytvoř mi JSON pole s ${numQuestions} otázkami s výběrem ze 4 odpovědí. V poli budou objekty se třemi klíči: "question" (otázka), "options" (pole 4 stringů) a "correctAnswer" (index správné odpovědi, 0 až 3).`;
-                        } else if (quizType === 'write') {
-                            const numQuestions = numWriteQuestionsInput.value;
-                            finalPrompt = `Téma: "${topic}"\n\nVytvoř JSON pole se ${numQuestions} otázkami a jejich krátkými, přesnými odpověďmi. Odpověď by měla být jasná a bez zbytečných detailů. V poli budou objekty se dvěma klíči: "question" (otázka) a "correctAnswer" (string se správnou odpovědí).`;
-                        }
+                           quizAbcdUi.classList.remove('hidden');
+                           abcdQuizContent.classList.remove('hidden');
+                           abcdScoreScreen.classList.add('hidden');
+                           displayAbcdQuestion();
+                           document.getElementById('quiz-question-title').textContent = 'Nekonečné procvičování';
+                           nextQuestionBtn.textContent = 'Další otázka';
+                       } else {
+                           quizWriteUi.classList.remove('hidden');
+                           writeQuizContent.classList.remove('hidden');
+                           writeScoreScreen.classList.add('hidden');
+                           displayWriteQuestion();
+                       }
                     } else {
-                        finalPrompt = `Téma: "${topic}"\n\nVytvoř pro mě ucelené, přehledné a srozumitelné shrnutí. Shrnutí by mělo obsahovat hlavní myšlenky a klíčové body, psané přátelsky a bez zbytečných detailů. Nikdy nepoužívej formátování Markdownu.`;
+                        showModal("Nepodařilo se vygenerovat unikátní otázku. Zkus to prosím znovu.");
+                        showLearningMethods(currentTopic, currentNotes, currentFocusTopic);
                     }
-                }
-                const payload = {
-                    contents: [{
-                        role: "user",
-                        parts: [{ text: finalPrompt }]
-                    }],
-                };
-                if (isQuiz) {
+                } else if (isQuiz) {
+                    const numQuestions = quizType === 'abcd' ? numQuestionsInput.value : numWriteQuestionsInput.value;
+                    let finalPrompt;
+                    let responseSchema;
                     if (quizType === 'abcd') {
-                        payload.generationConfig = {
-                            responseMimeType: "application/json",
-                            responseSchema: {
-                                type: "ARRAY",
-                                items: {
-                                    type: "OBJECT",
-                                    properties: {
-                                        "question": { "type": "STRING" },
-                                        "options": {
-                                            "type": "ARRAY",
-                                            "items": { "type": "STRING" }
-                                        },
-                                        "correctAnswer": { "type": "NUMBER" }
+                        finalPrompt = currentNotes ?
+                            `Použij následující text jako svůj hlavní zdroj informací: "${currentNotes}"\n\nNyní vytvoř JSON pole s ${numQuestions} otázkami s výběrem ze 4 odpovědí. Zaměř se pouze na téma: "${currentFocusTopic}". V poli budou objekty se třemi klíči: "question" (otázka), "options" (pole 4 stringů) a "correctAnswer" (index správné odpovědi, 0 až 3). Otázky se musí týkat výhradně zaměřeného tématu.` :
+                            `Téma: "${topic}"\n\nVytvoř mi JSON pole s ${numQuestions} otázkami s výběrem ze 4 odpovědí. V poli budou objekty se třemi klíči: "question" (otázka), "options" (pole 4 stringů) a "correctAnswer" (index správné odpovědi, 0 až 3).`;
+                        responseSchema = {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    "question": { "type": "STRING" },
+                                    "options": {
+                                        "type": "ARRAY",
+                                        "items": { "type": "STRING" }
                                     },
-                                    "propertyOrdering": ["question", "options", "correctAnswer"]
-                                }
+                                    "correctAnswer": { "type": "NUMBER" }
+                                },
+                                "propertyOrdering": ["question", "options", "correctAnswer"]
                             }
                         };
-                    } else if (quizType === 'write') {
-                        payload.generationConfig = {
-                            responseMimeType: "application/json",
-                            responseSchema: {
-                                type: "ARRAY",
-                                items: {
-                                    type: "OBJECT",
-                                    properties: {
-                                        "question": { "type": "STRING" },
-                                        "correctAnswer": { "type": "STRING" }
-                                    },
-                                    "propertyOrdering": ["question", "correctAnswer"]
-                                }
-                            }
-                        }
-                    }
-                }
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.status} ${response.statusText}`);
-                }
-                const result = await response.json();
-                if (isQuiz) {
-                    try {
-                        const jsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-                        if (!jsonText) throw new Error("API vrátil prázdnou odpověď.");
-                        quizData = JSON.parse(jsonText);
-                        if (quizData.length === 0) {
-                            showModal("AI nedokázala vytvořit otázky. Zkus to prosím znovu.");
-                            showLearningMethods(currentTopic, currentNotes, currentFocusTopic);
-                            return;
-                        }
-                        currentQuestionIndex = 0;
-                        score = 0;
-                        if (quizType === 'abcd') {
-                            quizAbcdUi.classList.remove('hidden');
-                            abcdQuizContent.classList.remove('hidden');
-                            abcdScoreScreen.classList.add('hidden');
-                            displayAbcdQuestion();
-                        } else {
-                            quizWriteUi.classList.remove('hidden');
-                            writeQuizContent.classList.remove('hidden');
-                            writeScoreScreen.classList.add('hidden');
-                            displayWriteQuestion();
-                        }
-                        responseArea.classList.add('hidden');
-                    } catch (e) {
-                        console.error("Chyba při zpracování JSON kvízu:", e);
-                        responseContent.innerHTML = 'Nastala chyba při vytváření kvízu. Zkus to prosím znovu.';
-                        backButtonContainer.classList.remove('hidden');
-                    }
-                } else {
-                    const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (text) {
-                        responseTitle.textContent = title;
-                        responseContent.textContent = text;
-                        backButtonContainer.classList.remove('hidden');
                     } else {
-                        responseContent.innerHTML = 'Něco se pokazilo. Zkus to prosím znovu.';
-                        backButtonContainer.classList.remove('hidden');
+                        finalPrompt = currentNotes ?
+                            `Použij následující text jako svůj hlavní zdroj informací: "${currentNotes}"\n\nNyní vytvoř JSON pole se ${numQuestions} otázkami a jejich krátkými, přesnými odpověďmi. Odpověď by měla být jasná a bez zbytečných detailů. V poli budou objekty se dvěma klíči: "question" (otázka) a "correctAnswer" (string se správnou odpovědí). Otázky se musí týkat výhradně zaměřeného tématu.` :
+                            `Téma: "${topic}"\n\nVytvoř JSON pole se ${numQuestions} otázkami a jejich krátkými, přesnými odpověďmi. Odpověď by měla být jasná a bez zbytečných detailů. V poli budou objekty se dvěma klíči: "question" (otázka) a "correctAnswer" (string se správnou odpovědí).`;
+                        responseSchema = {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    "question": { "type": "STRING" },
+                                    "correctAnswer": { "type": "STRING" }
+                                },
+                                "propertyOrdering": ["question", "correctAnswer"]
+                            }
+                        };
                     }
+                    const payload = {
+                        contents: [{ role: "user", parts: [{ text: finalPrompt }] }],
+                        generationConfig: { responseMimeType: "application/json", responseSchema: responseSchema }
+                    };
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                    const response = await fetch(apiUrl, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`API error: ${response.status} ${response.statusText}`);
+                    const result = await response.json();
+                    const jsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!jsonText) throw new Error("API vrátil prázdnou odpověď.");
+                    quizData = JSON.parse(jsonText);
+                    if (quizData.length === 0) {
+                        showModal("AI nedokázala vytvořit otázky. Zkus to prosím znovu.");
+                        showLearningMethods(currentTopic, currentNotes, currentFocusTopic);
+                        return;
+                    }
+                    currentQuestionIndex = 0;
+                    score = 0;
+                    if (quizType === 'abcd') {
+                        quizAbcdUi.classList.remove('hidden');
+                        abcdQuizContent.classList.remove('hidden');
+                        abcdScoreScreen.classList.add('hidden');
+                        nextQuestionBtn.textContent = 'Další otázka';
+                        displayAbcdQuestion();
+                    } else {
+                        quizWriteUi.classList.remove('hidden');
+                        writeQuizContent.classList.remove('hidden');
+                        writeScoreScreen.classList.add('hidden');
+                        displayWriteQuestion();
+                    }
+                    responseArea.classList.add('hidden');
+                } else {
+                    let finalPrompt = currentNotes ?
+                        `Použij následující text jako svůj hlavní zdroj informací: "${currentNotes}"\n\nVytvoř pro mě ucelené, přehledné a srozumitelné shrnutí. Zaměř se pouze na téma: "${currentFocusTopic}". Shrnutí by mělo obsahovat hlavní myšlenky a klíčové body, psané přátelsky a bez zbytečných detailů. Shrnutí se musí týkat výhradně zaměřeného tématu. Nikdy nepoužívej formátování Markdownu.` :
+                        `Téma: "${topic}"\n\nVytvoř pro mě ucelené, přehledné a srozumitelné shrnutí. Shrnutí by mělo obsahovat hlavní myšlenky a klíčové body, psané přátelsky a bez zbytečných detailů. Nikdy nepoužívej formátování Markdownu.`;
+                    const payload = { contents: [{ role: "user", parts: [{ text: finalPrompt }] }] };
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                    const response = await fetch(apiUrl, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`API error: ${response.status} ${response.statusText}`);
+                    const result = await response.json();
+                    const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!text) throw new Error("API vrátil prázdnou odpověď.");
+                    responseTitle.textContent = title;
+                    responseContent.textContent = text;
+                    backButtonContainer.classList.remove('hidden');
+                    quizAbcdUi.classList.add('hidden');
+                    quizWriteUi.classList.add('hidden');
                 }
             } catch (error) {
                 console.error("Chyba při volání AI API:", error);
@@ -651,22 +740,20 @@
                 return { isCorrect: false, explanation: "Nastala chyba při vyhodnocování. Zkus to prosím znovu." };
             }
         }
-        let quizData = [];
-        let currentQuestionIndex = 0;
-        let score = 0;
         function displayAbcdQuestion() {
-            if (currentQuestionIndex >= quizData.length) {
+            if (!isInfiniteMode && currentQuestionIndex >= quizData.length) {
                 abcdQuizContent.classList.add('hidden');
                 abcdScoreScreen.classList.remove('hidden');
                 abcdFinalScore.textContent = `Tvůj výsledek je ${score} z ${quizData.length}.`;
                 return;
             }
             const currentQuestion = quizData[currentQuestionIndex];
-            quizQuestionTitle.textContent = `Otázka ${currentQuestionIndex + 1} z ${quizData.length}`;
+            if (!isInfiniteMode) {
+                quizQuestionTitle.textContent = `Otázka ${currentQuestionIndex + 1} z ${quizData.length}`;
+            }
             quizQuestion.textContent = currentQuestion.question;
             quizOptions.innerHTML = '';
             quizFeedback.textContent = '';
-            quizFeedback.classList.remove('hidden');
             nextQuestionBtn.classList.add('hidden');
             currentQuestion.options.forEach((option, index) => {
                 const button = document.createElement('button');
@@ -684,8 +771,10 @@
             if (selectedIndex === correctIndex) {
                 selectedButton.style.backgroundColor = '#22c55e';
                 selectedButton.style.color = '#fff';
-                quizFeedback.textContent = "Správně!";
-                score++;
+                quizFeedback.textContent = "Správně! 🎉";
+                if (!isInfiniteMode) {
+                    score++;
+                }
             } else {
                 selectedButton.style.backgroundColor = '#ef4444';
                 selectedButton.style.color = '#fff';
@@ -696,7 +785,7 @@
             nextQuestionBtn.classList.remove('hidden');
         }
         function displayWriteQuestion() {
-            if (currentQuestionIndex >= quizData.length) {
+            if (!isInfiniteMode && currentQuestionIndex >= quizData.length) {
                 writeQuizContent.classList.add('hidden');
                 writeScoreScreen.classList.remove('hidden');
                 writeFinalScore.textContent = `Gratuluji! Získal jsi ${score} bodů z ${quizData.length}.`;
@@ -709,13 +798,17 @@
             currentExplanation = '';
             submitWriteBtn.classList.remove('hidden');
             const currentQuestion = quizData[currentQuestionIndex];
-            quizWriteQuestionTitle.textContent = `Otázka ${currentQuestionIndex + 1} z ${quizData.length}`;
+            if (!isInfiniteMode) {
+                quizWriteQuestionTitle.textContent = `Otázka ${currentQuestionIndex + 1} z ${quizData.length}`;
+            } else {
+                quizWriteQuestionTitle.textContent = 'Nekonečné procvičování';
+                nextWriteBtn.textContent = 'Další otázka';
+            }
             quizWriteQuestion.textContent = currentQuestion.question;
             quizWriteAnswer.value = '';
             quizWriteAnswer.classList.remove('hidden');
             quizWriteAnswer.disabled = false;
             quizWriteFeedback.textContent = '';
-            quizWriteFeedback.classList.remove('hidden');
         }
         submitWriteBtn.addEventListener('click', async () => {
             const userAnswer = quizWriteAnswer.value.trim();
@@ -735,7 +828,9 @@
                 if (judgement.isCorrect) {
                     quizWriteFeedback.textContent = `Správně! ✅`;
                     quizWriteFeedback.style.color = '#22c55e';
-                    score++;
+                    if (!isInfiniteMode) {
+                        score++;
+                    }
                 } else {
                     quizWriteFeedback.textContent = `Špatně! ❌`;
                     quizWriteFeedback.style.color = '#ef4444';
@@ -765,8 +860,20 @@
             }
         });
         nextWriteBtn.addEventListener('click', () => {
-            currentQuestionIndex++;
-            displayWriteQuestion();
+            if (isInfiniteMode) {
+                getAIResponse(currentTopic, currentNotes, currentFocusTopic, 'Nekonečné procvičování', true, 'write', true);
+            } else {
+                currentQuestionIndex++;
+                displayWriteQuestion();
+            }
+        });
+        startInfiniteAbcdBtn.addEventListener('click', () => {
+            quizAbcdSetup.classList.add('hidden');
+            getAIResponse(currentTopic, currentNotes, currentFocusTopic, 'Nekonečné procvičování', true, 'abcd', true);
+        });
+        startInfiniteWriteBtn.addEventListener('click', () => {
+            quizWriteSetup.classList.add('hidden');
+            getAIResponse(currentTopic, currentNotes, currentFocusTopic, 'Nekonečné procvičování', true, 'write', true);
         });
         quizAbcdBtn.addEventListener('click', () => {
             learningMethodsUi.classList.add('hidden');
@@ -780,7 +887,7 @@
                 return;
             }
             quizAbcdSetup.classList.add('hidden');
-            getAIResponse(currentTopic, currentNotes, currentFocusTopic, "Kvíz (ABCD)", true, 'abcd');
+            getAIResponse(currentTopic, currentNotes, currentFocusTopic, "Kvíz (ABCD)", true, 'abcd', false);
         });
         quizWriteBtn.addEventListener('click', () => {
             learningMethodsUi.classList.add('hidden');
@@ -794,14 +901,18 @@
                 return;
             }
             quizWriteSetup.classList.add('hidden');
-            getAIResponse(currentTopic, currentNotes, currentFocusTopic, 'Kvíz (textová odpověď)', true, 'write');
+            getAIResponse(currentTopic, currentNotes, currentFocusTopic, 'Kvíz (textová odpověď)', true, 'write', false);
         });
         dynamicTextBtn.addEventListener('click', () => {
             getAIResponse(currentTopic, currentNotes, currentFocusTopic, `Shrnutí: ${currentTopic || (currentNotes ? 'Poznámky' : '')}${currentFocusTopic ? ` - ${currentFocusTopic}` : ''}`, false);
         });
         nextQuestionBtn.addEventListener('click', () => {
-            currentQuestionIndex++;
-            displayAbcdQuestion();
+            if (isInfiniteMode) {
+                getAIResponse(currentTopic, currentNotes, currentFocusTopic, 'Nekonečné procvičování', true, 'abcd', true);
+            } else {
+                currentQuestionIndex++;
+                displayAbcdQuestion();
+            }
         });
         quizAbcdFinishBtn.addEventListener('click', () => {
             resetApp();
